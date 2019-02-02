@@ -39,24 +39,8 @@ $lots = [
         'price' => 5400,
         'image' => 'img/lot-6.jpg'
     ]
-];
-
-function get_classname($classname) {
-    return trim($classname) ? ' class="' . $classname . '" ' :  '' ;
-}
-
-function render_categories(&$categories, $ul_classname = '', $li_classname = '', $a_classname = '') {
-   $html = '<ul' . get_classname($ul_classname) . '>';    
-   foreach ($categories as $key => $val) {
-    $html .= '<li' . get_classname($li_classname) . '>';
-    $html .= '<a' . get_classname($a_classname) . ' href="pages/all-lots.html">' . $val . '</a>';
-    $html .= '</li>';
-   }; 
-   $html .= '</ul>';
-   return $html;
-}
+]
 ?>
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -102,8 +86,14 @@ function render_categories(&$categories, $ul_classname = '', $li_classname = '',
 <main class="container">
     <section class="promo">
         <h2 class="promo__title">Нужен стафф для катки?</h2>
-        <p class="promo__text">На нашем интернет-аукционе ты найдёшь самое эксклюзивное сноубордическое и горнолыжное снаряжение.</p>          
-        <?php echo render_categories($categories, 'promo__list', 'promo__item promo__item--boards',  'promo__link'); ?>
+        <p class="promo__text">На нашем интернет-аукционе ты найдёшь самое эксклюзивное сноубордическое и горнолыжное снаряжение.</p>
+        <ul class="promo__list">               
+            <?php foreach ($categories as $key => $val): ?>
+                <li class="promo__item promo__item--boards">
+                    <a class="promo__link" href="pages/all-lots.html"><?=$val; ?></a>
+                </li>
+            <?php endforeach; ?>
+        </ul>
     </section>
     <section class="lots">
         <div class="lots__header">
@@ -137,7 +127,13 @@ function render_categories(&$categories, $ul_classname = '', $li_classname = '',
 
 <footer class="main-footer">
     <nav class="nav">
-        <?php echo render_categories($categories, 'nav__list container', 'nav__item', ''); ?>         
+        <ul class="nav__list container">   
+            <?php foreach ($categories as $key => $val): ?>
+                <li class="nav__item">
+                    <a href="pages/all-lots.html"><?=$val; ?></a>
+                </li>
+            <?php endforeach; ?>
+        </ul>
     </nav>
     <div class="main-footer__bottom container">
         <div class="main-footer__copyright">
