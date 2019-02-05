@@ -41,12 +41,8 @@ $lots = [
     ]
 ];
 
-function ruble () {
-    return '<b class="rub">р</b>';
-}
-
 function get_rubles($sum) {
-    return number_format(ceil($sum), 0,  '', ' ') . ' ' . ruble();
+    return number_format(ceil($sum), 0,  '', ' ') . ' ' . '<b class="rub">р</b>';
 };
 
 ?>
