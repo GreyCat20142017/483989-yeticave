@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title><?=$title; ?></title>
+    <title><?= $title; ?></title>
     <link href="css/normalize.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
 </head>
@@ -23,7 +23,7 @@
             <nav class="user-menu">
                 <?php if ($is_auth): ?>
                     <div class="user-menu__logged">
-                        <p><?= $user_name ?></p>
+                        <p><?= strip_tags($user_name) ?></p>
                     </div>
                 <?php else: ?>
                     <ul class="user-menu__list">
@@ -46,7 +46,7 @@
         <ul class="nav__list container">
             <?php foreach ($categories as $category): ?>
                 <li class="nav__item">
-                    <a href="pages/all-lots.html"><?= strip_tags($category); ?></a>
+                    <a href="pages/all-lots.html"><?= $category; ?></a>
                 </li>
             <?php endforeach; ?>
         </ul>
