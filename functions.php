@@ -15,7 +15,7 @@
         extract($data);
         require $name;
         return ob_get_clean();
-    };
+    }
 
     /**
      * Функция округляет число в большую сторону и возвращает строку с добавленным символом рубля и делением на разряды
@@ -24,4 +24,12 @@
      */
     function get_rubles ($sum) {
         return number_format(ceil($sum), 0, '', ' ') . ' ' . '<b class="rub">р</b>';
-    };
+    }
+
+    /**
+     * Функция возвращает разницу между текущим временем и ближайшей полуночью в виде строки в формате ЧЧ-ММ
+     * @return string
+     */
+    function get_lot_lifetime () {
+        return date_diff(date_create("now"), date_create("tomorrow midnight"))->format("%H:%I");
+    }
