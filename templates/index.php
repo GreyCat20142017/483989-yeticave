@@ -33,7 +33,7 @@
                                 <span class="lot__cost"><?= get_rubles(strip_tags($lot['price'])); ?></span>
                             </div>
                             <div class="lot__timer timer">
-                                12:23
+                                <?= get_lot_lifetime(); ?>
                             </div>
                         </div>
                     </div>
