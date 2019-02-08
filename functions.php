@@ -31,5 +31,7 @@
      * @return string
      */
     function get_lot_lifetime () {
-        return date_diff(date_create("now"), date_create("tomorrow midnight"))->format("%H:%I");
+        $current_date = date_create("now");
+        $limit_date = date_create("tomorrow midnight");
+        return date_interval_format(date_diff($current_date, $limit_date), "%H:%I");
     }
