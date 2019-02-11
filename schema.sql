@@ -1,4 +1,4 @@
-DROP DATABASE IF EXISTS yeti;
+drop DATABASE IF EXISTS yeti;
 
 CREATE DATABASE yeti DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
 
@@ -36,7 +36,7 @@ CREATE TABLE lots
   step            DECIMAL(6, 2)  NOT NULL DEFAULT 0
 );
 
-create table bets
+CREATE TABLE bids
 (
   id             INT UNSIGNED   NOT NULL AUTO_INCREMENT PRIMARY KEY,
   user_id        INT UNSIGNED   NOT NULL DEFAULT 0,
