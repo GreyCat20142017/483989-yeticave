@@ -3,28 +3,18 @@
     define('ERROR_KEY', 'error');
 
     require_once('functions.php');
+    require_once('connection_config.php');
 
     date_default_timezone_set('Europe/Moscow');
     $is_auth = rand(0, 1);
     $user_name = 'GreyCat';
 
-    $connection = get_connection();
+    $connection = get_connection($connection_config);
 
     if ($connection) {
 
-        $categories = get_data_from_db(
-            $connection,
-            'SELECT id, name FROM categories',
-            'Cписок категорий недоступен');
-
-        $lots = get_data_from_db(
-            $connection,
-            'SELECT c.name AS category, l.name, l.price, l.image
-            FROM lots AS l
-                   JOIN categories AS c ON l.category_id = c.id
-            WHERE l.completion_date IS NULL
-            ORDER BY l.creation_date DESC ' . ' LIMIT ' . LOTS_PER_PAGE . ';',
-            'Cписок лотов недоступен');
+        $categories = get_all_categories($connection);
+        $lots = get_open_lots($connection, LOTS_PER_PAGE);
 
         $main_categories_content = include_template('categories.php',
             [
@@ -66,6 +56,7 @@
             'is_auth' => $is_auth,
             'user_name' => $user_name
         ]);
+
     print($layout_content);
 
 ?>

@@ -60,17 +60,12 @@
 
     /**
      * Функция принимает ассоциативный массив с параметрами подключения к БД (host, user, password, database)
-     * Если массив не передан, используются параметры по умолчанию
      * Возвращает соединение или false
      * @param array $db
      * @return mysqli
      */
-    function get_connection ($db = [
-        'host' => 'localhost',
-        'user' => 'mysql',
-        'password' => 'bredBUG-26',
-        'database' => 'yeti']) {
-        $connection = mysqli_connect($db['host'], $db['user'], $db['password'], $db['database']);
+    function get_connection (&$config) {
+        $connection = mysqli_connect($config['host'], $config['user'], $config['password'], $config['database']);
         if ($connection) {
             mysqli_set_charset($connection, "utf8");
         }
@@ -83,7 +78,7 @@
      * @param $connection
      * @param $query
      * @param $user_error_message
-     * @return array|null
+     * @return array
      */
     function get_data_from_db (&$connection, $query, $user_error_message) {
         $data = [[ERROR_KEY => $user_error_message]];
@@ -120,9 +115,38 @@
     /**
      * Функция для предотвращения пустых атрибутов class в шаблоне.
      * Возвращает часть тега с названием класса, либо пустую строку
-     * @param $classname
+     * @param string $classname
      * @return string
      */
     function get_classname ($classname) {
         return empty($classname) ? '' : ' class="' . $classname . '" ';
+    }
+
+    /**
+     * Функция принимает соединение с БД
+     * Возвращает либо список категорий, полученный из БД в виде массива, либо ассоциативный массив с описанием ошибки
+     * @param $connection
+     * @return array
+     */
+    function get_all_categories (&$connection) {
+        $sql = 'SELECT id, name FROM categories;';
+        return get_data_from_db($connection, $sql, 'Cписок категорий недоступен');
+    }
+
+    /**
+     * Функция принимает соединение с БД, количество требуемых лотов, и $offset (не обязательный параметр)
+     * ($offset - по умолчанию = 0 (для главной страницы) или <n> для пагинации)
+     * Возвращает либо список открытых лотов, полученный из БД в виде массива, либо ассоциативный массив с описанием ошибки
+     * @param $connection
+     * @param int $limit
+     * @param int $offset optional
+     * @return array
+     */
+    function get_open_lots (&$connection, $limit, $offset = 0) {
+        $sql = 'SELECT c.name AS category, l.name, l.price, l.image
+            FROM lots AS l
+                   JOIN categories AS c ON l.category_id = c.id
+            WHERE l.completion_date IS NULL
+            ORDER BY l.creation_date DESC ' . ' LIMIT ' . $limit . ' OFFSET ' . $offset . ';';
+        return get_data_from_db($connection, $sql, 'Cписок лотов недоступен');
     }
