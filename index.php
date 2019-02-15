@@ -11,42 +11,34 @@
 
     $connection = get_connection($connection_config);
 
-    if ($connection) {
-
-        $categories = get_all_categories($connection);
-        $lots = get_open_lots($connection, LOTS_PER_PAGE);
-
-        $main_categories_content = include_template('categories.php',
-            [
-                'categories' => $categories,
-                'ul_classname' => 'promo__list',
-                'li_classname' => 'promo__item promo__item--boards',
-                'a_classname' => 'promo__link'
-            ]);
-
-        $footer_categories_content = include_template('categories.php',
-            [
-                'categories' => $categories,
-                'ul_classname' => 'nav__list container',
-                'li_classname' => 'nav__item',
-                'a_classname' => ''
-            ]);
-
-        $page_content = include_template('index.php',
-            [
-                'lots' => $lots,
-                'categories_content' => $main_categories_content
-            ]);
-
-    } else {
-
-        $error = mysqli_connect_error();
-        $page_content = include_template('error.php', [
-            'mysql_error_message' => $error,
-            'user_error_message' => 'Отсутствует подключение к базе данных']);
-        $footer_categories_content = '';
-
+    if (!$connection) {
+        die('Невозможно подключиться к базе данных: ' . mysqli_connect_error());
     }
+
+    $categories = get_all_categories($connection);
+    $lots = get_open_lots($connection, LOTS_PER_PAGE);
+
+    $main_categories_content = include_template('categories.php',
+        [
+            'categories' => $categories,
+            'ul_classname' => 'promo__list',
+            'li_classname' => 'promo__item promo__item--boards',
+            'a_classname' => 'promo__link'
+        ]);
+
+    $footer_categories_content = include_template('categories.php',
+        [
+            'categories' => $categories,
+            'ul_classname' => 'nav__list container',
+            'li_classname' => 'nav__item',
+            'a_classname' => ''
+        ]);
+
+    $page_content = include_template('index.php',
+        [
+            'lots' => $lots,
+            'categories_content' => $main_categories_content
+        ]);
 
     $layout_content = include_template('layout.php',
         [
