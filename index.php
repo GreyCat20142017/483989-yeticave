@@ -1,19 +1,9 @@
 <?php
-    define('LOTS_PER_PAGE', 9);
-    define('ERROR_KEY', 'error');
 
+    require_once('constants.php');
+    require_once('connection.php');
     require_once('functions.php');
-    require_once('connection_config.php');
-
-    date_default_timezone_set('Europe/Moscow');
-    $is_auth = rand(0, 1);
-    $user_name = 'GreyCat';
-
-    $connection = get_connection($connection_config);
-
-    if (!$connection) {
-        die('Невозможно подключиться к базе данных: ' . mysqli_connect_error());
-    }
+    require_once('query_functions.php');
 
     $categories = get_all_categories($connection);
     $lots = get_open_lots($connection, LOTS_PER_PAGE);
@@ -37,7 +27,8 @@
     $page_content = include_template('index.php',
         [
             'lots' => $lots,
-            'categories_content' => $main_categories_content
+            'categories_content' => $main_categories_content,
+            'images' => get_assoc_element($paths, 'images')
         ]);
 
     $layout_content = include_template('layout.php',

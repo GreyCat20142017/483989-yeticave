@@ -1,13 +1,15 @@
 <?php
     /**
-     * Функция принимает два аргумента: имя файла шаблона и ассоциативный массив с данными для этого шаблона.
+     * Функция принимает два или три аргумента: имя файла шаблона и ассоциативный массив с данными для этого шаблона.
+     * Третий (необязательный) параметр $is_inner (по умолчанию = false) определяет, является ли страница внутренней
      * Функция возвращает строку — итоговый HTML-код с подставленными данными или описание ошибки
      * @param $name string
      * @param $data array
+     * @param $is_inner boolean optional
      * @return false|string
      */
-    function include_template ($name, $data) {
-        $name = 'templates/' . $name;
+    function include_template ($name, $data, $is_inner = false) {
+        $name = ($is_inner ? '../' : '') . 'templates/' . $name;
         if (!is_readable($name)) {
             return 'Шаблон с именем ' . $name . ' не существует или недоступен для чтения';
         }
@@ -19,11 +21,14 @@
 
     /**
      * Функция округляет число в большую сторону и возвращает строку с добавленным символом рубля и делением на разряды
-     * @param $sum float
+     * Необязательный параметр simple позволяет вывести сумму без стилизованного тега с svg
+     * @param $sum
+     * @param bool $simple optional, default = false
      * @return string
      */
-    function get_rubles ($sum) {
-        return number_format(ceil($sum), 0, '', ' ') . ' ' . '<b class="rub">р</b>';
+    function get_rubles ($sum, $simple = false) {
+        $ruble = $simple ? 'р' : '<b class="rub">р</b>';
+        return number_format(ceil($sum), 0, '', ' ') . ' ' . $ruble;
     }
 
     /**
@@ -44,7 +49,7 @@
      * @return element or string
      */
     function get_assoc_element ($data, $key) {
-        return array_key_exists($key, $data) && isset($data[$key]) ? $data[$key] : '';
+        return isset($data) && array_key_exists($key, $data) && isset($data[$key]) ? $data[$key] : '';
     }
 
     /**
@@ -120,33 +125,4 @@
      */
     function get_classname ($classname) {
         return empty($classname) ? '' : ' class="' . $classname . '" ';
-    }
-
-    /**
-     * Функция принимает соединение с БД
-     * Возвращает либо список категорий, полученный из БД в виде массива, либо ассоциативный массив с описанием ошибки
-     * @param $connection
-     * @return array
-     */
-    function get_all_categories (&$connection) {
-        $sql = 'SELECT id, name FROM categories;';
-        return get_data_from_db($connection, $sql, 'Cписок категорий недоступен');
-    }
-
-    /**
-     * Функция принимает соединение с БД, количество требуемых лотов, и $offset (не обязательный параметр)
-     * ($offset - по умолчанию = 0 (для главной страницы) или <n> для пагинации)
-     * Возвращает либо список открытых лотов, полученный из БД в виде массива, либо ассоциативный массив с описанием ошибки
-     * @param $connection
-     * @param int $limit
-     * @param int $offset optional
-     * @return array
-     */
-    function get_open_lots (&$connection, $limit, $offset = 0) {
-        $sql = 'SELECT c.name AS category, l.name, l.price, l.image
-            FROM lots AS l
-                   JOIN categories AS c ON l.category_id = c.id
-            WHERE l.completion_date IS NULL
-            ORDER BY l.creation_date DESC ' . ' LIMIT ' . $limit . ' OFFSET ' . $offset . ';';
-        return get_data_from_db($connection, $sql, 'Cписок лотов недоступен');
     }

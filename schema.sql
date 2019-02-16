@@ -16,7 +16,7 @@ CREATE TABLE users
   registration_date TIMESTAMP    NOT NULL        DEFAULT CURRENT_TIMESTAMP,
   email             VARCHAR(128) NOT NULL UNIQUE DEFAULT '',
   name              CHAR(30)     NOT NULL        DEFAULT '',
-  user_password     CHAR(20)     NOT NULL        DEFAULT '',
+  user_password     VARCHAR(254) NOT NULL        DEFAULT '',
   avatar            CHAR(32)     NOT NULL        DEFAULT '',
   contacts          TEXT         NOT NULL
 );
