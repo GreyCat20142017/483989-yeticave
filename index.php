@@ -3,7 +3,7 @@
     require_once('constants.php');
     require_once('connection.php');
     require_once('functions.php');
-    require_once('query_functions.php');
+    require_once('db_functions.php');
 
     $categories = get_all_categories($connection);
     $lots = get_open_lots($connection, LOTS_PER_PAGE);
@@ -11,17 +11,13 @@
     $main_categories_content = include_template('categories.php',
         [
             'categories' => $categories,
-            'ul_classname' => 'promo__list',
-            'li_classname' => 'promo__item promo__item--boards',
-            'a_classname' => 'promo__link'
+            'style' => get_assoc_element($category_styles, 'tile')
         ]);
 
     $footer_categories_content = include_template('categories.php',
         [
             'categories' => $categories,
-            'ul_classname' => 'nav__list container',
-            'li_classname' => 'nav__item',
-            'a_classname' => ''
+            'style' => get_assoc_element($category_styles, 'bar')
         ]);
 
     $page_content = include_template('index.php',

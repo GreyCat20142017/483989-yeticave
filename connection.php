@@ -1,6 +1,6 @@
 <?php
     require_once('connection_config.php');
-    require_once('functions.php');
+    require_once('db_functions.php');
 
     $connection = get_connection($connection_config);
 

@@ -1,15 +1,13 @@
 <?php
     /**
-     * Функция принимает два или три аргумента: имя файла шаблона и ассоциативный массив с данными для этого шаблона.
-     * Третий (необязательный) параметр $is_inner (по умолчанию = false) определяет, является ли страница внутренней
+     * Функция принимает два аргумента: имя файла шаблона и ассоциативный массив с данными для этого шаблона.
      * Функция возвращает строку — итоговый HTML-код с подставленными данными или описание ошибки
      * @param $name string
      * @param $data array
-     * @param $is_inner boolean optional
      * @return false|string
      */
-    function include_template ($name, $data, $is_inner = false) {
-        $name = ($is_inner ? '../' : '') . 'templates/' . $name;
+    function include_template ($name, $data) {
+        $name = 'templates/' . $name;
         if (!is_readable($name)) {
             return 'Шаблон с именем ' . $name . ' не существует или недоступен для чтения';
         }
@@ -61,60 +59,6 @@
      */
     function get_element ($array, $index) {
         return isset($array[$index]) ? $array[$index] : '';
-    }
-
-    /**
-     * Функция принимает ассоциативный массив с параметрами подключения к БД (host, user, password, database)
-     * Возвращает соединение или false
-     * @param array $db
-     * @return mysqli
-     */
-    function get_connection (&$config) {
-        $connection = mysqli_connect($config['host'], $config['user'], $config['password'], $config['database']);
-        if ($connection) {
-            mysqli_set_charset($connection, "utf8");
-        }
-        return $connection;
-    }
-
-    /**
-     * Функция принимает соединение, текст запроса и пользовательское сообщение для вывода в случае ошибки.
-     * Возвращает либо данные, полученные из БД в виде массива, либо ассоциативный массив с описанием ошибки
-     * @param $connection
-     * @param $query
-     * @param $user_error_message
-     * @return array
-     */
-    function get_data_from_db (&$connection, $query, $user_error_message) {
-        $data = [[ERROR_KEY => $user_error_message]];
-        if ($connection) {
-            $result = mysqli_query($connection, $query);
-            if ($result) {
-                $data = mysqli_fetch_all($result, MYSQLI_ASSOC);
-            } else {
-                $error = mysqli_error($connection);
-            }
-        }
-        return $data;
-    }
-
-    /**
-     * Функция устанавливает, имел ли место факт ошибки при получении данных, анализируя переданный по ссылке массив,
-     * полученный функцией get_data_from_db
-     * @param $data
-     * @return bool
-     */
-    function was_error (&$data) {
-        return isset($data[0]) && array_key_exists(ERROR_KEY, $data[0]);
-    }
-
-    /**
-     * Функция для совместного использования с функцией was_error. Возвращает описание ошибки.
-     * @param $data
-     * @return element value|string
-     */
-    function get_error_description (&$data) {
-        return isset($data[0]) ? get_assoc_element($data[0], ERROR_KEY) : 'Неизвестная ошибка...';
     }
 
     /**
