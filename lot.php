@@ -16,23 +16,14 @@
         [
             'categories' => $categories,
             'style' => get_assoc_element($category_styles, 'bar')
-        ],
-        true);
+        ]);
 
-    $page_content = $is_ok ?
-        include_template('lot.php',
-            [
-                'lot' => $lot,
-                'categories_content' => $categories_content,
-                'images' => get_assoc_element($paths, 'images'),
-            ],
-            true)
-        :
-        include_template('404.php',
-            [
-                'categories_content' => $categories_content,
-            ],
-            true);
+    $page_content = include_template($is_ok ? 'lot.php' : '404.php',
+        [
+            'lot' => $lot,
+            'categories_content' => $categories_content,
+            'images' => get_assoc_element($paths, 'images'),
+        ]);
 
     $layout_content = include_template('layout.php',
         [
@@ -41,8 +32,7 @@
             'categories_content' => $categories_content,
             'is_auth' => $is_auth,
             'user_name' => $user_name
-        ],
-        true);
+        ]);
 
     if (!$is_ok) {
         http_response_code(404);
