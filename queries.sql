@@ -22,13 +22,18 @@ VALUES ('Василий Пупкин', 'vasyaPup@mail.ru', 'secret', 'ava_1.svg'
         '2019-02-02 12:12:12');
 
 # Добавление существующего списка объявлений
-INSERT INTO lots (category_id, owner_id, creation_date, name, image, price, description)
-VALUES (1, 1, '2019-01-01 10:10:10', '2014 Rossignol District Snowboard', 'img/lot-1.jpg', 10999.00, 'Snowbord'),
-       (1, 1, '2019-01-02 10:10:10', 'DC Ply Mens 2016/2017 Snowboard', 'img/lot-2.jpg', 159999.00, ''),
-       (2, 1, '2019-01-03 10:10:10', 'Крепления Union Contact Pro 2015 года размер L/XL', 'img/lot-3.jpg', 8000.00, ''),
-       (3, 2, '2019-02-03 20:20:20', 'Ботинки для сноуборда DC Mutiny Charocal', 'img/lot-4.jpg', 10999.00, ''),
-       (4, 2, '2019-02-04 20:20:20', 'Куртка для сноуборда DC Mutiny Charocal', 'img/lot-5.jpg', 7500.00, ''),
-       (6, 2, '2019-02-05 20:20:20', 'Маска Oakley Canopy', 'img/lot-6.jpg', 5400.00, 'Маска');
+INSERT INTO lots (category_id, owner_id, creation_date, name, image, price, step, description)
+VALUES (1, 1, '2019-01-01 10:10:10', '2014 Rossignol District Snowboard', 'lot-1.jpg', 10999.00, 1000.00,
+        'Маневренный сноуборд c симметричной геометрией в сочетании с классическим прогибом.'),
+       (1, 1, '2019-01-02 10:10:10', 'DC Ply Mens 2016/2017 Snowboard', 'lot-2.jpg', 159999.00, 5000.00,
+        'Легкий маневренный сноуборд, готовый дать жару в любом парке, растопив снег мощным щелчкоми четкими дугами. Стекловолокно Bi-Ax, уложенное в двух направлениях, наделяет этот снаряд отличной гибкостью и отзывчивостью'),
+       (2, 1, '2019-01-03 10:10:10', 'Крепления Union Contact Pro 2015 года размер L/XL', 'lot-3.jpg', 8000.00, 500.00,
+        'Высокий профиль удерживает ботинок по всей длине подошвы.'),
+       (3, 2, '2019-02-03 20:20:20', 'Ботинки для сноуборда DC Mutiny Charocal', 'lot-4.jpg', 10999.00, 500.00,
+        'Просто хорошие ботинки'),
+       (4, 2, '2019-02-04 20:20:20', 'Куртка для сноуборда DC Mutiny Charocal', 'lot-5.jpg', 7500.00, 500.00,
+        'Просто удобная куртка'),
+       (6, 2, '2019-02-05 20:20:20', 'Маска Oakley Canopy', 'lot-6.jpg', 5400.00, 300.00, 'Просто маска');
 
 # Добавление пары ставок для любого объявления
 INSERT INTO bids (user_id, lot_id, placement_date, declared_price)
@@ -65,7 +70,7 @@ SELECT b.id, u.name AS user_name, l.id as lot_id,l.name AS lot_name, b.placement
 FROM bids AS b
        JOIN users AS u on b.user_id = u.id
        JOIN lots AS l on b.lot_id = l.id
-where b.lot_id = @lotid
+WHERE b.lot_id = @lotid
 ORDER BY b.placement_date DESC
 LIMIT 3
 
