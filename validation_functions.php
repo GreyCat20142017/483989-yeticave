@@ -171,7 +171,7 @@
      * @param $fields
      * @return array
      */
-    function get_image_fields ($fields) {св вЖ.
+    function get_image_fields ($fields) {
         return array_filter($fields, function ($item) {
             return
                 isset($item['validation_rules']) && is_array($item['validation_rules']) ?
