@@ -33,7 +33,7 @@ CREATE TABLE lots
   image           CHAR(50)       NOT NULL DEFAULT '',
   price           DECIMAL(10, 2) NOT NULL DEFAULT 0,
   completion_date DATETIME,
-  step            DECIMAL(6, 2)  NOT NULL DEFAULT 0
+  step            DECIMAL(10, 2)  NOT NULL DEFAULT 0
 );
 
 CREATE TABLE bids

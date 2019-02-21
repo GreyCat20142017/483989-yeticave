@@ -15,14 +15,14 @@
     $categories_content = include_template('categories.php',
         [
             'categories' => $categories,
-            'style' => get_assoc_element($category_styles, 'bar')
+            'style' => get_assoc_element(CATEGORY_STYLES, 'bar')
         ]);
 
     $page_content = include_template($is_ok ? 'lot.php' : '404.php',
         [
             'lot' => $lot,
             'categories_content' => $categories_content,
-            'images' => get_assoc_element($paths, 'images'),
+            'images' => get_assoc_element(PATHS, 'images'),
         ]);
 
     $layout_content = include_template('layout.php',

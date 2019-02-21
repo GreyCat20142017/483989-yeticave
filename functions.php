@@ -70,3 +70,23 @@
     function get_classname ($classname) {
         return empty($classname) ? '' : ' class="' . $classname . '" ';
     }
+
+    /**
+     * Функция проверяет наличие данных в массиве по ключу, фильтрует содержимое функцией strip_tags и убирает пробелы
+     * @param $data
+     * @param $key
+     * @return string
+     */
+    function get_pure_data($data, $key) {
+        return isset($data) && array_key_exists($key, $data) && isset($data[$key]) ? trim(strip_tags($data[$key])) : '';
+    }
+
+    /**
+     * Функция возвращает значение атрибута selected для выпадающего списка
+     * @param $category_id
+     * @param $current_id
+     * @return string
+     */
+    function get_selected_state($element_id, $current_id) {
+        return $element_id === $current_id ? ' selected ' : '';
+    }

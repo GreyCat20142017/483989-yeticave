@@ -97,3 +97,32 @@
                 WHERE l.id = ' . $lot_id . ';';
         return get_data_from_db($connection, $sql, 'Невозможно получить данные о лоте ' . $lot_id, true);
     }
+    /**
+     * Функция принимает соединение и массив с данными формы. Возвращает либо массив с id добавленной записи, либо массив с ошибкой
+     * @param $connection
+     * @param $lot
+     * @return array
+     */
+    function add_lot ($connection, $lot) {
+        $sql = 'INSERT INTO lots (category_id, owner_id,  name, description, image, price,  step, completion_date) 
+                          VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)';
+
+        $stmt = db_get_prepare_stmt($connection, $sql, [
+            get_assoc_element($lot, 'category'),
+            1,
+            get_assoc_element($lot, 'lot-name'),
+            get_assoc_element($lot, 'message'),
+            get_assoc_element($lot, 'lot-image'),
+            get_assoc_element($lot, 'lot-rate'),
+            get_assoc_element($lot, 'lot-step'),
+            get_assoc_element($lot, 'lot-date')
+        ]);
+
+        $res = mysqli_stmt_execute($stmt);
+
+        if ($res) {
+            $new_id = mysqli_insert_id($connection);
+            return ['id' => $new_id];
+        }
+        return ['error' => mysqli_error($connection)];
+    }

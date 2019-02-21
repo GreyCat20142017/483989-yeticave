@@ -16,20 +16,20 @@
                 <?php foreach ($lots as $lot): ?>
                     <li class="lots__item lot">
                         <div class="lot__image">
-                            <img src="<?= $images . strip_tags($lot['image']); ?>" width="350" height="260"
-                                 alt="<?= strip_tags($lot['name']); ?>">
+                            <img src="<?= $images . get_pure_data($lot, 'image'); ?>" width="350" height="260"
+                                 alt="<?= get_pure_data($lot, 'name'); ?>">
                         </div>
                         <div class="lot__info">
-                            <span class="lot__category"><?= strip_tags($lot['category']); ?></span>
+                            <span class="lot__category"><?= get_pure_data($lot, 'category'); ?></span>
                             <h3 class="lot__title">
-                                <a class="text-link" href="lot.php?id=<?= strip_tags($lot['id']); ?>">
-                                    <?= strip_tags($lot['name']); ?>
+                                <a class="text-link" href="lot.php?id=<?= get_pure_data($lot, 'id'); ?>">
+                                    <?= get_pure_data($lot, 'name'); ?>
                                 </a>
                             </h3>
                             <div class="lot__state">
                                 <div class="lot__rate">
                                     <span class="lot__amount">Стартовая цена</span>
-                                    <span class="lot__cost"><?= get_rubles(strip_tags($lot['price'])); ?></span>
+                                    <span class="lot__cost"><?= get_rubles(get_pure_data($lot, 'price')); ?></span>
                                 </div>
                                 <div class="lot__timer timer">
                                     <?= get_lot_lifetime(); ?>
