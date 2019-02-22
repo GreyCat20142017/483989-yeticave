@@ -48,7 +48,7 @@ FROM categories;
 SELECT l.name, price, image, c.name AS category
 FROM lots AS l
        JOIN categories AS c ON l.category_id = c.id
-WHERE completion_date IS NULL
+WHERE winner_id IS NULL
 ORDER BY l.creation_date DESC;
 
 # Объявление переменной с идентификатором лота

@@ -37,13 +37,15 @@
 
     /**
      * Функция возращает название класса для обертки поля формы на основе переданного массива с результатами валидации и названия поля
+     * Для изображения передается название класса.
      * @param $errors
      * @param $field_name
      * @return string
      */
-    function get_field_validation_classname (&$errors, $field_name) {
+    function get_field_validation_classname (&$errors, $field_name, $success_classname = '') {
+        $success_classname = is_array($errors) && count($errors) === 0 ? '' : $success_classname;
         $field_errors = get_assoc_element($errors, $field_name);
-        return is_array($field_errors) && count($field_errors) > 0 ? 'form__item--invalid' : '';
+        return is_array($field_errors) && count($field_errors) > 0 ? 'form__item--invalid' : $success_classname;
     }
 
     /**
@@ -54,7 +56,7 @@
      */
     function get_field_validation_message (&$errors, $field_name) {
         $field_errors = get_assoc_element($errors, $field_name);
-        return is_array($field_errors) ? join(', ', $field_errors) : '';
+        return is_array($field_errors) ? join('. ', $field_errors) : '';
     }
 
     /**
@@ -110,8 +112,20 @@
      * @return string
      */
     function get_lot_date_validation_result ($date) {
-        $is_ok = true;
-        return $is_ok ? '' : 'Необходима дата в формате ДД.ММ.ГГГГ (больше текущей минимум на 1 день)';
+        $error_message = 'Необходима дата в формате ДД.ММ.ГГГГ больше текущей минимум на 1 день';
+        $is_ok = (strlen($date) === 10);
+        preg_match('/\d{2}.\d{2}.\d{4}/', $date, $matches);
+        $is_ok = $is_ok && count($matches) > 0 && $matches[0] === $date;
+        $parts = (preg_split("/\./", $date));
+        $is_ok = $is_ok && (count($parts) === 3) && checkdate($parts[1], $parts[0], $parts[2]);
+        if (!$is_ok) {
+            return $error_message;
+        }
+        $now = date_create("now");
+        $date = date_create($date);
+        $days_count = date_interval_format(date_diff($date, $now), "%d");
+        $is_ok = $date > $now && $days_count >= 1;
+        return $is_ok ? '' : 'Необходима дата в формате ДД.ММ.ГГГГ больше текущей минимум на 1 день';
     }
 
     /**
@@ -145,7 +159,7 @@
 
         if (isset($files[$field_name]['name'])) {
             if (get_assoc_element($files[$field_name], 'error') !== 0) {
-                return 'Неизвестная ошибка при загрузке файла...';
+                return 'Изображение не загружено';
             }
             $tmp_name = $files[$field_name]['tmp_name'];
             $file_size = $files[$field_name]['size'];
@@ -155,15 +169,6 @@
             return $is_ok ? '' : 'Загружаемая картинка должна быть в формате jpeg или png и размером не более 200Кб';
         }
         return 'Необходимо загрузить файл в формате jpeg или png (не более 200Кб)';
-    }
-
-    /**
-     * Не доделано. Будет проверять, имеет ли смысл перемещать файлы в папку с изображениями или необходимы действия пользователя
-     * @param $image_fields
-     * @return bool
-     */
-    function is_no_image_errors ($image_fields) {
-        return true;
     }
 
     /**
@@ -193,7 +198,7 @@
         foreach ($image_fields as $field_name => $field) {
             $tmp_name = $files[$field_name]['tmp_name'];
             if (is_uploaded_file($tmp_name)) {
-                $path = uniqid($image_key . '_', true) . '.' . pathinfo($files[$field_name]['name'], PATHINFO_EXTENSION);
+                $path = uniqid($image_key . '-', true) . '.' . pathinfo($files[$field_name]['name'], PATHINFO_EXTENSION);
                 move_uploaded_file($tmp_name, $image_path . $path);
                 $lot[$field_name] = $path;
             } else {

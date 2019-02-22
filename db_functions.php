@@ -78,7 +78,7 @@
         $sql = 'SELECT l.id, c.name AS category, l.name, l.price, l.image
                 FROM lots AS l
                 JOIN categories AS c ON l.category_id = c.id
-                WHERE l.completion_date IS NULL
+                WHERE l.winner_id IS NULL
                 ORDER BY l.creation_date DESC ' . ' LIMIT ' . $limit . ' OFFSET ' . $offset . ';';
         return get_data_from_db($connection, $sql, 'Cписок лотов недоступен');
     }
@@ -99,17 +99,28 @@
     }
     /**
      * Функция принимает соединение и массив с данными формы. Возвращает либо массив с id добавленной записи, либо массив с ошибкой
+     * В случае попытки использовать несуществующие id пользователя или id категории возвращает ошибку
      * @param $connection
      * @param $lot
      * @return array
      */
-    function add_lot ($connection, $lot) {
+    function add_lot ($connection, $lot, $current_user = 1) {
+
+        $current_category = get_assoc_element($lot, 'category');
+
+        $user_status = get_id_existance($connection, 'users', $current_user);
+        $category_status = get_id_existance($connection, 'categories', $current_category);
+
+        if (was_error($category_status) || was_error($user_status)) {
+            return ['error' => 'Попытка использовать несуществующие данные для добавления лота. Лот не будет добавлен!'];
+        }
+
         $sql = 'INSERT INTO lots (category_id, owner_id,  name, description, image, price,  step, completion_date) 
                           VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)';
 
         $stmt = db_get_prepare_stmt($connection, $sql, [
-            get_assoc_element($lot, 'category'),
-            1,
+            $current_category,
+            $current_user,
             get_assoc_element($lot, 'lot-name'),
             get_assoc_element($lot, 'message'),
             get_assoc_element($lot, 'lot-image'),
@@ -125,4 +136,21 @@
             return ['id' => $new_id];
         }
         return ['error' => mysqli_error($connection)];
+    }
+
+    /**
+     * Функция проверяет существование ключа в указанной таблице БД
+     * @param $connection
+     * @param $table
+     * @param $id
+     * @return array|null
+     */
+    function get_id_existance ($connection, $table, $id) {
+        $data = [[ERROR_KEY => 'Id =  ' . $id . ' в таблице ' . $table . ' не существует! ']];
+        $sql = 'SELECT id FROM ' . $table . ' WHERE id = ' . $id . ' LIMIT 1';
+        $result = get_data_from_db($connection, $sql, 'Невозможно получить id из таблицы ' . $table, true);
+        if ($result) {
+            $data = $result;
+        }
+        return $data;
     }

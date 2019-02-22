@@ -1,9 +1,6 @@
 <?php
 
-    require_once('constants.php');
-    require_once('connection.php');
     require_once('functions.php');
-    require_once('db_functions.php');
 
     $categories = get_all_categories($connection);
     $lots = get_open_lots($connection, LOTS_PER_PAGE);

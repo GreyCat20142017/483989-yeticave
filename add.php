@@ -1,11 +1,6 @@
 <?php
 
-    require_once('constants.php');
-    require_once('connection.php');
-    require_once('mysql_helper.php');
     require_once('functions.php');
-    require_once('db_functions.php');
-    require_once('validation_functions.php');
 
     $categories = get_all_categories($connection);
 
@@ -40,17 +35,29 @@
 
         $errors = get_validation_result($fields, $lot, $_FILES);
 
-        $image_fields = get_image_fields($fields);
-        if (is_no_image_errors($image_fields)) {
-            try_upload_images($image_fields, $_FILES, $errors, get_assoc_element(PATHS, 'images'), 'lot', $lot);
-        }
+        $status_ok = empty(get_form_validation_classname($errors));
 
-        if (empty(get_form_validation_classname($errors))) {
+        $image_fields = get_image_fields($fields);
+
+        if ($status_ok) {
+
+            try_upload_images($image_fields, $_FILES, $errors, get_assoc_element(PATHS, 'images'), 'lot', $lot);
+
             $add_result = add_lot($connection, $lot);
             if (isset($add_result) && array_key_exists('id', $add_result)) {
                 header('Location: lot.php?id=' . get_assoc_element($add_result, 'id'));
             } else {
-                header('Location: lot.php?id=' . 'add_lot_error');
+                header('Location: lot.php?id=' . 'add_lot_error' . '&msg=' . get_assoc_element($add_result, 'error'));
+            }
+        } else {
+
+            /**
+             * Если были ошибки, изображения нужно загрузить снова в любом случае
+             */
+            $_FILES = [];
+            foreach ($image_fields as $key_image_field => $image_field) {
+                $description = get_assoc_element($fields, $key_image_field);
+                set_assoc_element($description, 'errors', []);
             }
         }
     }
