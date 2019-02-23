@@ -154,3 +154,49 @@
         }
         return $data;
     }
+
+    /**
+     * Функция возращает ошибку, если невозможно получить данные из БД, массив с id пользователя, если пользователь
+     * с таким email существует, null - если не было ошибки и такого пользователя нет в БД
+     * @param $connection
+     * @param $email
+     * @return null || array
+     */
+    function get_id_by_email ($connection, $email) {
+        $sql = 'SELECT id FROM users WHERE email="' . mysqli_real_escape_string($connection, $email) . '" LIMIT 1';
+        return get_data_from_db($connection, $sql, 'Невозможно получить id пользователя', true);
+    }
+
+    /**
+     * Функция возвращает либо массив с id пользователя (добавленного либо существующего) либо массив с описанием ошибки
+     * @param $connection
+     * @param $user
+     * @return array
+     */
+    function add_user ($connection, $user) {
+
+        $user_status = get_id_by_email($connection, $user['email']);
+
+        if ($user_status) {
+            return $user_status;
+        }
+
+        $sql = 'INSERT INTO users ( email, name, user_password, avatar, contacts) 
+                          VALUES ( ?, ?, ?, ?, ?)';
+
+        $stmt = db_get_prepare_stmt($connection, $sql, [
+            get_assoc_element($user, 'email'),
+            get_assoc_element($user, 'name'),
+            password_hash(get_assoc_element($user, 'password'), PASSWORD_DEFAULT),
+            get_assoc_element($user, 'avatar'),
+            get_assoc_element($user, 'message')
+        ]);
+
+        $res = mysqli_stmt_execute($stmt);
+
+        if ($res) {
+            $new_id = mysqli_insert_id($connection);
+            return ['id' => $new_id];
+        }
+        return ['error' => mysqli_error($connection)];
+    }

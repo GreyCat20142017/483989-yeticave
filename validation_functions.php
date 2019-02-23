@@ -70,15 +70,18 @@
         foreach ($fields as $field_name => $field) {
             $errors[$field_name] = [];
             $current_field = get_assoc_element($form_data, $field_name);
-            if (get_assoc_element($field, 'required') && empty($current_field)) {
+            if (get_assoc_element($field, 'required') &&
+                empty($current_field) &&
+                !in_array(IMAGE_RULE, get_assoc_element($field, 'validation_rules', true))) {
                 array_push($errors[$field_name], 'Поле ' . get_assoc_element($field, 'description') . ' (' . $field_name . ') необходимо заполнить');
             }
             if (isset($field['validation_rules']) && is_array($field['validation_rules'])) {
                 foreach ($field['validation_rules'] as $rule) {
+                    $is_required = get_assoc_element($field, 'required');
                     $result = ($rule === IMAGE_RULE) ?
-                        get_image_validation_result($field_name, $files) :
+                        get_image_validation_result($field_name, $files, $is_required) :
                         get_additional_validation_result($rule, $current_field);
-                    if (!empty($result)) {
+                    if (!empty($result) && $is_required) {
                         array_push($errors[$field_name], $result);
                     }
                 }
@@ -107,7 +110,7 @@
     }
 
     /**
-     * Функция проверяет, явяется ли
+     * Функция проверяет, явяется ли параметр датой в формате ДД.ММ.ГГГГ больше текущей минимум на 1 день
      * @param $date
      * @return string
      */
@@ -122,10 +125,10 @@
             return $error_message;
         }
         $now = date_create("now");
-        $date = date_create($date);
+        $date = $date = date_create_from_format('d.m.Y', '' . $date);
         $days_count = date_interval_format(date_diff($date, $now), "%d");
         $is_ok = $date > $now && $days_count >= 1;
-        return $is_ok ? '' : 'Необходима дата в формате ДД.ММ.ГГГГ больше текущей минимум на 1 день';
+        return $is_ok ? '' : $error_message;
     }
 
     /**
@@ -155,7 +158,7 @@
      * @param $files
      * @return string
      */
-    function get_image_validation_result ($field_name, &$files) {
+    function get_image_validation_result ($field_name, &$files, $is_required) {
 
         if (isset($files[$field_name]['name'])) {
             if (get_assoc_element($files[$field_name], 'error') !== 0) {
@@ -168,7 +171,7 @@
             $is_ok = in_array($file_type, VALID_IMAGE_TYPES) && ($file_size <= MAX_IMAGE_SIZE);
             return $is_ok ? '' : 'Загружаемая картинка должна быть в формате jpeg или png и размером не более 200Кб';
         }
-        return 'Необходимо загрузить файл в формате jpeg или png (не более 200Кб)';
+        return $is_required ? 'Необходимо загрузить файл в формате jpeg или png (не более 200Кб)' : '';
     }
 
     /**
@@ -194,16 +197,19 @@
      * @param $image_key
      * @param $lot
      */
-    function try_upload_images ($image_fields, &$files, &$errors, $image_path, $image_key, &$lot) {
+    function try_upload_images ($image_fields, &$files, &$errors, $image_path, $image_key, &$data) {
         foreach ($image_fields as $field_name => $field) {
             $tmp_name = $files[$field_name]['tmp_name'];
-            if (is_uploaded_file($tmp_name)) {
+            if (!empty($tmp_name) && is_uploaded_file($tmp_name)) {
                 $path = uniqid($image_key . '-', true) . '.' . pathinfo($files[$field_name]['name'], PATHINFO_EXTENSION);
                 move_uploaded_file($tmp_name, $image_path . $path);
-                $lot[$field_name] = $path;
+                $data[$field_name] = $path;
             } else {
-                $result = 'Загрузка файла невозможна: ' . $files[$field_name]['tmp_name'];
-                array_push($errors[$field_name], 'Загрузка файла невозможна: ' . $files[$field_name]['tmp_name']);
+                $is_required = get_assoc_element($field, 'required');
+                if ($is_required) {
+                    $result = 'Загрузка файла невозможна: ' . $files[$field_name]['tmp_name'];
+                    array_push($errors[$field_name], 'Загрузка файла невозможна: ' . $files[$field_name]['tmp_name']);
+                }
             }
         }
     }

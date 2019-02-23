@@ -11,12 +11,11 @@
         ]);
 
     $errors = [];
-    $lot = [];
-    $category = 0;
+    $user = [];
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-        $lot = array_map(function ($item) {
+        $user = array_map(function ($item) {
             return trim(strip_tags($item));
         }, $_POST);
         /**
@@ -24,16 +23,14 @@
          * нужно установить false, при этом заполнение контролировать специфическими правилами
          */
         $fields = [
-            'category' => ['description' => 'Категория', 'required' => false, 'validation_rules' => ['category_validation']],
-            'lot-name' => ['description' => 'Наименование', 'required' => true],
-            'message' => ['description' => 'Описание', 'required' => true],
-            'lot-rate' => ['description' => 'Начальная цена', 'required' => true, 'validation_rules' => ['decimal_validation']],
-            'lot-step' => ['description' => 'Шаг ставки', 'required' => true, 'validation_rules' => ['decimal_validation']],
-            'lot-date' => ['description' => 'Дата завершения', 'required' => true, 'validation_rules' => ['lot_date_validation']],
-            'lot-image' => ['description' => 'Изображение', 'required' => true, 'validation_rules' => [IMAGE_RULE]]
+            'email' => ['description' => 'E-mail', 'required' => true, 'validation_rules' => ['email_validation']],
+            'password' => ['description' => 'Пароль', 'required' => true],
+            'name' => ['description' => 'Описание', 'required' => true],
+            'message' => ['description' => 'Контактные данные', 'required' => true],
+            'avatar' => ['description' => 'Аватар', 'required' => false, 'validation_rules' => [IMAGE_RULE]]
         ];
 
-        $errors = get_validation_result($fields, $lot, $_FILES);
+        $errors = get_validation_result($fields, $user, $_FILES);
 
         $status_ok = empty(get_form_validation_classname($errors));
 
@@ -41,13 +38,13 @@
 
         if ($status_ok) {
 
-            try_upload_images($image_fields, $_FILES, $errors, get_assoc_element(PATHS, 'images'), 'lot', $lot);
+            try_upload_images($image_fields, $_FILES, $errors, get_assoc_element(PATHS, 'avatars'), 'user', $user);
 
-            $add_result = add_lot($connection, $lot);
+            $add_result = add_user($connection, $user);
             if (isset($add_result) && array_key_exists('id', $add_result)) {
-                header('Location: lot.php?id=' . get_assoc_element($add_result, 'id'));
+                header('Location: login.php?id=' . get_assoc_element($add_result, 'id'));
             } else {
-                header('Location: lot.php?id=' . 'add_lot_error' . '&msg=' . get_assoc_element($add_result, 'error'));
+                /*Что-то тут будет*/
             }
         } else {
 
@@ -62,26 +59,17 @@
         }
     }
 
-    $categories_dropdown = include_template('categories_dropdown.php',
-        [
-            'categories' => $categories,
-            'empty_category' => EMPTY_CATEGORY,
-            'errors' => $errors,
-            'current' => get_assoc_element($lot, 'category')
-        ]);
-
-    $page_content = include_template('add.php', [
-        'categories_dropdown' => $categories_dropdown,
+    $page_content = include_template('sign-up.php', [
         'categories_content' => $categories_content,
-        'images' => get_assoc_element(PATHS, 'images'),
+        'images' => get_assoc_element(PATHS, 'avatars'),
         'errors' => $errors,
-        'lot' => $lot
+        'user' => $user
     ]);
 
     $layout_content = include_template('layout.php',
         [
             'main_content' => $page_content,
-            'title' => 'Добавление лота',
+            'title' => 'Регистрация',
             'categories_content' => $categories_content,
             'is_auth' => $is_auth,
             'user_name' => $user_name

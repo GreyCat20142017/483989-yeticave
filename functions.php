@@ -48,13 +48,16 @@
 
     /**
      * Функция проверяет существование ключа ассоциативного массива и возвращает значение по ключу, если
-     * существуют ключ и значение. В противном случае будет возвращена пустая строка
-     * @param $data
-     * @param $key
-     * @return element or string
+     * существуют ключ и значение. В противном случае будет возвращена пустая строка или пустой массив (если передан
+     * третий параметр, запрашивающий пустой массив в случае отсутствия значения)
+     * @param array $data
+     * @param string $key
+     * @param bool $array_return
+     * @return any or string or array
      */
-    function get_assoc_element ($data, $key) {
-        return isset($data) && array_key_exists($key, $data) && isset($data[$key]) ? $data[$key] : '';
+    function get_assoc_element ($data, $key, $array_return = false) {
+        $empty_value = $array_return ? [] : '';
+        return isset($data) && array_key_exists($key, $data) && isset($data[$key]) ? $data[$key] : $empty_value;
     }
 
     /**

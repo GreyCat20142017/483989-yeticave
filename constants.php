@@ -28,5 +28,5 @@
     ]);
 
     date_default_timezone_set('Europe/Moscow');
-    $is_auth = rand(0, 1);
+    $is_auth = 0;
     $user_name = 'GreyCat';
