@@ -116,19 +116,19 @@
      */
     function get_lot_date_validation_result ($date) {
         $error_message = 'Необходима дата в формате ДД.ММ.ГГГГ больше текущей минимум на 1 день';
-        $is_ok = (strlen($date) === 10);
-        preg_match('/\d{2}.\d{2}.\d{4}/', $date, $matches);
-        $is_ok = $is_ok && count($matches) > 0 && $matches[0] === $date;
-        $parts = (preg_split("/\./", $date));
-        $is_ok = $is_ok && (count($parts) === 3) && checkdate($parts[1], $parts[0], $parts[2]);
-        if (!$is_ok) {
+        if (!preg_match('/\d{2}.\d{2}.\d{4}/', $date) || strlen($date) !== 10) {
             return $error_message;
         }
+        $parts = (preg_split("/\./", $date));
+        if (!checkdate($parts[1], $parts[0], $parts[2])) {
+            return $error_message;
+        }
+
         $now = date_create("now");
-        $date = $date = date_create_from_format('d.m.Y', '' . $date);
+        $date = date_create_from_format('d.m.Y', $date);
         $days_count = date_interval_format(date_diff($date, $now), "%d");
-        $is_ok = $date > $now && $days_count >= 1;
-        return $is_ok ? '' : $error_message;
+
+        return ($date > $now) && ($days_count >= 1) ? '' : $error_message;
     }
 
     /**
