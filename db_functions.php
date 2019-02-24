@@ -175,7 +175,7 @@
      */
     function add_user ($connection, $user) {
 
-        $user_status = get_id_by_email($connection, $user['email']);
+        $user_status = get_id_by_email($connection, get_assoc_element($user, 'email'));
 
         if ($user_status) {
             return $user_status;
@@ -199,4 +199,23 @@
             return ['id' => $new_id];
         }
         return ['error' => mysqli_error($connection)];
+    }
+
+    /**
+     * Функция возвращает результат запроса в виде ассоциативного массива со статусом и данными
+     * @param $connection
+     * @param $email
+     * @return array|null
+     */
+    function get_user_by_email ($connection, $email) {
+        $sql = 'SELECT id, email, user_password FROM users WHERE email="' . mysqli_real_escape_string($connection, $email) . '" LIMIT 1';
+        $data = get_data_from_db($connection, $sql, 'Невозможно получить данные пользователя', true);
+        if (!$data) {
+            $result = ['status' => get_assoc_element(GET_DATA_STATUS, 'no_data'), 'data' => null];
+        } else if (was_error($data)) {
+            $result = ['status' => get_assoc_element(GET_DATA_STATUS, 'db_error'), 'data' => null];
+        } else {
+            $result = ['status' => get_assoc_element(GET_DATA_STATUS, 'data_received'), 'data' => $data];
+        }
+        return $result;
     }

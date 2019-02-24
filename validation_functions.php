@@ -1,17 +1,6 @@
 <?php
 
     /**
-     * Вспомогательная функция суммирования для array_reduce
-     * @param $total
-     * @param $item
-     * @return int
-     */
-    function counter ($total, $item) {
-        $total += is_array($item) ? count($item) : 0;
-        return $total;
-    }
-
-    /**
      * Функция возращает название класса для формы на основе переданного массива с результатами валидации
      * @param $errors
      * @return string
@@ -73,7 +62,7 @@
             if (get_assoc_element($field, 'required') &&
                 empty($current_field) &&
                 !in_array(IMAGE_RULE, get_assoc_element($field, 'validation_rules', true))) {
-                array_push($errors[$field_name], 'Поле ' . get_assoc_element($field, 'description') . ' (' . $field_name . ') необходимо заполнить');
+                add_error_message($errors, $field_name, 'Поле ' . get_assoc_element($field, 'description') . ' (' . $field_name . ') необходимо заполнить');
             }
             if (isset($field['validation_rules']) && is_array($field['validation_rules'])) {
                 foreach ($field['validation_rules'] as $rule) {
@@ -82,7 +71,7 @@
                         get_image_validation_result($field_name, $files, $is_required) :
                         get_additional_validation_result($rule, $current_field);
                     if (!empty($result) && $is_required) {
-                        array_push($errors[$field_name], $result);
+                        add_error_message($errors, $field_name, $result);
                     }
                 }
             }
@@ -116,19 +105,16 @@
      */
     function get_lot_date_validation_result ($date) {
         $error_message = 'Необходима дата в формате ДД.ММ.ГГГГ больше текущей минимум на 1 день';
-        if (!preg_match('/\d{2}.\d{2}.\d{4}/', $date) || strlen($date) !== 10) {
-            return $error_message;
-        }
-        $parts = (preg_split("/\./", $date));
-        if (!checkdate($parts[1], $parts[0], $parts[2])) {
-            return $error_message;
-        }
-
+        $status = '';
         $now = date_create("now");
-        $date = date_create_from_format('d.m.Y', $date);
-        $days_count = date_interval_format(date_diff($date, $now), "%d");
-
-        return ($date > $now) && ($days_count >= 1) ? '' : $error_message;
+        $new_date = date_create_from_format('d.m.Y', $date);
+        if (!$new_date || $date !== date_format($new_date, 'd.m.Y')) {
+            $status = $error_message;
+        } else {
+            $days_count = date_interval_format(date_diff($new_date, $now), "%d");
+            $status = ($new_date > $now) && ($days_count >= 1) ? '' : $error_message;
+        }
+        return $status;
     }
 
     /**
@@ -159,7 +145,6 @@
      * @return string
      */
     function get_image_validation_result ($field_name, &$files, $is_required) {
-
         if (isset($files[$field_name]['name'])) {
             if (get_assoc_element($files[$field_name], 'error') !== 0) {
                 return 'Изображение не загружено';
@@ -208,8 +193,20 @@
                 $is_required = get_assoc_element($field, 'required');
                 if ($is_required) {
                     $result = 'Загрузка файла невозможна: ' . $files[$field_name]['tmp_name'];
-                    array_push($errors[$field_name], 'Загрузка файла невозможна: ' . $files[$field_name]['tmp_name']);
+                    add_error_message($errors, $field_name, 'Загрузка файла невозможна: ' . $files[$field_name]['tmp_name']);
                 }
             }
+        }
+    }
+
+    /**
+     * Функция добавляет описание ошибки в предназначенный для этого массив
+     * @param $errors
+     * @param $field_name
+     * @param $error_message
+     */
+    function add_error_message (&$errors, $field_name, $error_message) {
+        if (isset($errors) && array_key_exists($field_name, $errors)) {
+            array_push($errors[$field_name], $error_message);
         }
     }

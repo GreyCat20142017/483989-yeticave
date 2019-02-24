@@ -27,6 +27,15 @@
         ]
     ]);
 
+
+    define('GET_DATA_STATUS', [
+        'db_error' => 'Ошибка БД при получении данных',
+        'data_received' => 'Данные получены',
+        'no_data' => 'В выборке нет данных'
+
+    ]);
+
+
     date_default_timezone_set('Europe/Moscow');
     $is_auth = 0;
     $user_name = 'GreyCat';
