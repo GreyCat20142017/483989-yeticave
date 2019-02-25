@@ -12,6 +12,7 @@
 
     $errors = [];
     $user = [];
+    $status_text = '';
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -41,16 +42,14 @@
             try_upload_images($image_fields, $_FILES, $errors, get_assoc_element(PATHS, 'avatars'), 'user', $user);
 
             $add_result = add_user($connection, $user);
-            if (isset($add_result) && array_key_exists('id', $add_result)) {
-                header('Location: login.php?id=' . get_assoc_element($add_result, 'id'));
+            if ($add_result) {
+                header('Location: login.php');
             } else {
-                /*Что-то тут будет*/
+                $status_text = 'Не удалось добавить пользователя в БД';
             }
+
         } else {
 
-            /**
-             * Если были ошибки, изображения нужно загрузить снова в любом случае
-             */
             $_FILES = [];
             foreach ($image_fields as $key_image_field => $image_field) {
                 $description = get_assoc_element($fields, $key_image_field);
@@ -63,7 +62,8 @@
         'categories_content' => $categories_content,
         'images' => get_assoc_element(PATHS, 'avatars'),
         'errors' => $errors,
-        'user' => $user
+        'user' => $user,
+        'status' => $status_text
     ]);
 
     $layout_content = include_template('layout.php',

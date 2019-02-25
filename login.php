@@ -53,6 +53,7 @@
 
                 case get_assoc_element(GET_DATA_STATUS, 'db_error'):
                     break;
+
                 default:
                     break;
             }

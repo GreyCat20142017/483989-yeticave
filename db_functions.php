@@ -168,10 +168,10 @@
     }
 
     /**
-     * Функция возвращает либо массив с id пользователя (добавленного либо существующего) либо массив с описанием ошибки
+     * Функция возвращает true в случае успешного добавления пользователя, false - в случае ошибки
      * @param $connection
      * @param $user
-     * @return array
+     * @return bool
      */
     function add_user ($connection, $user) {
 
@@ -194,11 +194,7 @@
 
         $res = mysqli_stmt_execute($stmt);
 
-        if ($res) {
-            $new_id = mysqli_insert_id($connection);
-            return ['id' => $new_id];
-        }
-        return ['error' => mysqli_error($connection)];
+        return ($res) ? true : false;
     }
 
     /**

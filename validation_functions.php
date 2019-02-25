@@ -5,11 +5,11 @@
      * @param $errors
      * @return string
      */
-    function get_form_validation_classname (&$errors) {
+    function get_form_validation_classname (&$errors, $status = '') {
         return isset($errors) && array_reduce($errors, function ($total, $item) {
             $total += is_array($item) ? count($item) : 0;
             return $total;
-        }) > 0 ? 'form--invalid' : '';
+        }) > 0 || !empty($status) ? 'form--invalid' : '';
     }
 
     /**
