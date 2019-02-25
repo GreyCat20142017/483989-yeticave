@@ -1,4 +1,11 @@
 <?php
+
+    require_once('constants.php');
+    require_once('connection.php');
+    require_once('mysql_helper.php');
+    require_once('db_functions.php');
+    require_once('validation_functions.php');
+
     /**
      * Функция принимает два аргумента: имя файла шаблона и ассоциативный массив с данными для этого шаблона.
      * Функция возвращает строку — итоговый HTML-код с подставленными данными или описание ошибки
@@ -41,13 +48,32 @@
 
     /**
      * Функция проверяет существование ключа ассоциативного массива и возвращает значение по ключу, если
-     * существуют ключ и значение. В противном случае будет возвращена пустая строка
+     * существуют ключ и значение. В противном случае будет возвращена пустая строка или пустой массив (если передан
+     * третий параметр, запрашивающий пустой массив в случае отсутствия значения)
+     * @param array $data
+     * @param string $key
+     * @param bool $array_return
+     * @return any or string or array
+     */
+    function get_assoc_element ($data, $key, $array_return = false) {
+        $empty_value = $array_return ? [] : '';
+        return isset($data) && array_key_exists($key, $data) && isset($data[$key]) ? $data[$key] : $empty_value;
+    }
+
+    /**
+     * Функция проверяет существование ключа ассоциативного массива и устанавливает значение по ключу,
+     * если существуют ключ и значение. Возвращает true в случае успеха.
      * @param $data
      * @param $key
-     * @return element or string
+     * @return bool
      */
-    function get_assoc_element ($data, $key) {
-        return isset($data) && array_key_exists($key, $data) && isset($data[$key]) ? $data[$key] : '';
+    function set_assoc_element ($data, $key, $value) {
+        $result = false;
+        if (isset($data) && array_key_exists($key, $data) && isset($data[$key])) {
+            $data[$key] = $value;
+            $result = true;
+        }
+        return $result;
     }
 
     /**
@@ -69,4 +95,34 @@
      */
     function get_classname ($classname) {
         return empty($classname) ? '' : ' class="' . $classname . '" ';
+    }
+
+    /**
+     * Функция проверяет наличие данных в массиве по ключу, фильтрует содержимое функцией strip_tags и убирает пробелы
+     * @param $data
+     * @param $key
+     * @return string
+     */
+    function get_pure_data($data, $key) {
+        return isset($data) && array_key_exists($key, $data) && isset($data[$key]) ? trim(strip_tags($data[$key])) : '';
+    }
+
+    /**
+     * Функция возвращает значение атрибута selected для выпадающего списка
+     * @param $category_id
+     * @param $current_id
+     * @return string
+     */
+    function get_selected_state($element_id, $current_id) {
+        return $element_id === $current_id ? ' selected ' : '';
+    }
+
+    /** Функция пытается получить параметр msg из массива _GET. В случае неудачи выводит стандартное сообщение.
+     * @param $get
+     * @param string $standard_message
+     * @return string
+     */
+    function get_error_info(&$get, $standard_message = 'Данной страницы не существует на сайте.') {
+        $message = get_pure_data($get, 'msg');
+        return empty($message) ? $standard_message : $message;
     }

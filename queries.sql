@@ -17,8 +17,8 @@ VALUES ('Доски и лыжи'),
 
 # Добавление пары пользователей
 INSERT INTO users (name, email, user_password, avatar, contacts, registration_date)
-VALUES ('Василий Пупкин', 'vasyaPup@mail.ru', 'secret', 'ava_1.svg', 'Почта:vasyaPup@mail.ru', '2018-01-01 11:11:11'),
-       ('Василиса Пупкина', 'vasilisaPupkina@mail.ru', 'superSecret', 'ava_2.svg', 'Почта, телеграф, телефон',
+VALUES ('Василий Пупкин', 'vasyaPup@mail.ru', SHA1('secret'), 'ava_1.svg', 'Почта:vasyaPup@mail.ru', '2018-01-01 11:11:11'),
+       ('Василиса Пупкина', 'vasilisaPupkina@mail.ru', SHA1('superSecret'), 'ava_2.svg', 'Почта, телеграф, телефон',
         '2019-02-02 12:12:12');
 
 # Добавление существующего списка объявлений
@@ -48,7 +48,7 @@ FROM categories;
 SELECT l.name, price, image, c.name AS category
 FROM lots AS l
        JOIN categories AS c ON l.category_id = c.id
-WHERE completion_date IS NULL
+WHERE winner_id IS NULL
 ORDER BY l.creation_date DESC;
 
 # Объявление переменной с идентификатором лота
