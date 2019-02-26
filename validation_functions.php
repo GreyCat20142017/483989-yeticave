@@ -187,8 +187,12 @@
             $tmp_name = $files[$field_name]['tmp_name'];
             if (!empty($tmp_name) && is_uploaded_file($tmp_name)) {
                 $path = uniqid($image_key . '-', true) . '.' . pathinfo($files[$field_name]['name'], PATHINFO_EXTENSION);
-                move_uploaded_file($tmp_name, $image_path . $path);
-                $data[$field_name] = $path;
+                if (check_and_repair_path($image_path)) {
+                    move_uploaded_file($tmp_name, $image_path . $path);
+                    $data[$field_name] = $path;
+                } else {
+                    add_error_message($errors, $field_name, 'Произошла ошибка при создании папки для загрузки изображений');
+                }
             } else {
                 $is_required = get_assoc_element($field, 'required');
                 if ($is_required) {

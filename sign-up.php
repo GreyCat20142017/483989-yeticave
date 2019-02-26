@@ -1,5 +1,7 @@
 <?php
 
+    session_start();
+
     require_once('functions.php');
 
     $categories = get_all_categories($connection);
@@ -42,9 +44,15 @@
             try_upload_images($image_fields, $_FILES, $errors, get_assoc_element(PATHS, 'avatars'), 'user', $user);
 
             $add_result = add_user($connection, $user);
+
             if ($add_result) {
-                header('Location: login.php');
+                if (isset($add_result['id'])) {
+                    add_error_message($errors, 'email', 'Пользователь с таким email уже существует!');
+                } else {
+                    header('Location: login.php');
+                }
             } else {
+
                 $status_text = 'Не удалось добавить пользователя в БД';
             }
 
@@ -71,8 +79,8 @@
             'main_content' => $page_content,
             'title' => 'Регистрация',
             'categories_content' => $categories_content,
-            'is_auth' => $is_auth,
-            'user_name' => $user_name
+            'is_auth' => is_auth_user(),
+            'user_name' => get_auth_user_property('name')
         ]);
 
     print($layout_content);

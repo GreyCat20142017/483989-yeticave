@@ -34,6 +34,6 @@
         'data_added' => 'Данные добавлены'
     ]);
 
+    define('YETI_SESSION', 'current_user');
+
     date_default_timezone_set('Europe/Moscow');
-    $is_auth = 0;
-    $user_name = 'GreyCat';

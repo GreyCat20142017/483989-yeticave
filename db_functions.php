@@ -169,9 +169,10 @@
 
     /**
      * Функция возвращает true в случае успешного добавления пользователя, false - в случае ошибки
+     * Если пользователь с таким email уже сушествовал - возвращается массив c id.
      * @param $connection
      * @param $user
-     * @return bool
+     * @return bool || array
      */
     function add_user ($connection, $user) {
 
@@ -204,7 +205,7 @@
      * @return array|null
      */
     function get_user_by_email ($connection, $email) {
-        $sql = 'SELECT id, email, user_password FROM users WHERE email="' . mysqli_real_escape_string($connection, $email) . '" LIMIT 1';
+        $sql = 'SELECT id, email, user_password, name FROM users WHERE email="' . mysqli_real_escape_string($connection, $email) . '" LIMIT 1';
         $data = get_data_from_db($connection, $sql, 'Невозможно получить данные пользователя', true);
         if (!$data) {
             $result = ['status' => get_assoc_element(GET_DATA_STATUS, 'no_data'), 'data' => null];
