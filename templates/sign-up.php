@@ -2,7 +2,7 @@
     <nav class="nav">
         <?= $categories_content ?>
     </nav>
-    <form class="form container <?= get_form_validation_classname($errors) ?>" action="sign-up.php"
+    <form class="form container <?= get_form_validation_classname($errors, $status) ?>" action="sign-up.php"
           method="post" enctype="multipart/form-data">
         <h2>Регистрация нового аккаунта</h2>
         <div class="form__item  <?= get_field_validation_classname($errors, 'email') ?>">
@@ -13,7 +13,7 @@
         </div>
         <div class="form__item  <?= get_field_validation_classname($errors, 'password') ?>">
             <label for="password">Пароль*</label>
-            <input id="password" type="text" name="password" placeholder="Введите пароль"
+            <input id="password" type="password" name="password" placeholder="Введите пароль"
                    value="<?= get_pure_data($user, 'password'); ?>" required>
             <span class="form__error"><?= get_field_validation_message($errors, 'password') ?></span>
         </div>
@@ -46,7 +46,7 @@
             </div>
             <span class="form__error"><?= get_field_validation_message($errors, 'avatar') ?></span>
         </div>
-        <span class="form__error form__error--bottom"><?= get_form_validation_message($errors) ?></span>
+        <span class="form__error form__error--bottom"><?= get_form_validation_message($errors) . $status ?></span>
         <button type="submit" class="button">Зарегистрироваться</button>
         <a class="text-link" href="login.php">Уже есть аккаунт</a>
     </form>

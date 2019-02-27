@@ -1,5 +1,7 @@
 <?php
 
+    session_start();
+
     require_once('functions.php');
 
     $categories = get_all_categories($connection);
@@ -29,8 +31,8 @@
             'main_content' => $page_content,
             'title' => 'Главная',
             'categories_content' => $footer_categories_content,
-            'is_auth' => $is_auth,
-            'user_name' => $user_name
+            'is_auth' => is_auth_user(),
+            'user_name' => get_auth_user_property('name')
         ]);
 
     print($layout_content);

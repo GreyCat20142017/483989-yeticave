@@ -1,5 +1,7 @@
 <?php
 
+    session_start();
+
     require_once('functions.php');
 
     $categories = get_all_categories($connection);
@@ -12,6 +14,7 @@
 
     $errors = [];
     $user = [];
+    $db_user = [];
     $status_text = 'Вход на сайт невозможен';
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -41,9 +44,10 @@
 
                 case get_assoc_element(GET_DATA_STATUS, 'data_received'):
                     $db_status_ok = true;
-                    if (!password_verify(get_assoc_element($user, 'password'), get_assoc_element($search_result, 'user_password'))) {
+                    $db_user = get_assoc_element($search_result, 'data');
+                    if (!password_verify(get_assoc_element($user, 'password'), get_assoc_element($db_user, 'user_password'))) {
                         $db_status_ok = false;
-                        add_error_message($errors, 'password', 'Неверный пароль');
+                        add_error_message($errors, 'password', 'Вы ввели неверный пароль');
                     }
                     break;
 
@@ -53,17 +57,22 @@
 
                 case get_assoc_element(GET_DATA_STATUS, 'db_error'):
                     break;
+
                 default:
                     break;
             }
 
             if ($db_status_ok) {
                 $status_text = '';
-//                тут успешно залогинились
+
+                $_SESSION[YETI_SESSION] = [
+                    'id' => get_assoc_element($db_user, 'id'),
+                    'name' => get_assoc_element($db_user, 'name')
+                ];                ;
+
+                header('Location: index.php');
             }
-
         }
-
     }
 
     $page_content = include_template('login.php', [
@@ -78,8 +87,8 @@
             'main_content' => $page_content,
             'title' => 'Регистрация',
             'categories_content' => $categories_content,
-            'is_auth' => $is_auth,
-            'user_name' => $user_name
+            'is_auth' => is_auth_user(),
+            'user_name' => get_auth_user_property('name')
         ]);
 
     print($layout_content);

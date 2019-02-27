@@ -5,6 +5,7 @@
     require_once('mysql_helper.php');
     require_once('db_functions.php');
     require_once('validation_functions.php');
+    require_once('session_functions.php');
 
     /**
      * Функция принимает два аргумента: имя файла шаблона и ассоциативный массив с данными для этого шаблона.
@@ -103,7 +104,7 @@
      * @param $key
      * @return string
      */
-    function get_pure_data($data, $key) {
+    function get_pure_data ($data, $key) {
         return isset($data) && array_key_exists($key, $data) && isset($data[$key]) ? trim(strip_tags($data[$key])) : '';
     }
 
@@ -113,7 +114,7 @@
      * @param $current_id
      * @return string
      */
-    function get_selected_state($element_id, $current_id) {
+    function get_selected_state ($element_id, $current_id) {
         return $element_id === $current_id ? ' selected ' : '';
     }
 
@@ -122,7 +123,27 @@
      * @param string $standard_message
      * @return string
      */
-    function get_error_info(&$get, $standard_message = 'Данной страницы не существует на сайте.') {
+    function get_error_info (&$get, $standard_message = 'Данной страницы не существует на сайте.') {
         $message = get_pure_data($get, 'msg');
         return empty($message) ? $standard_message : $message;
+    }
+
+    /**
+     * Функция позаимствована на просторах интернета. Проверяет является ли нечто существующей папкой.
+     * @param $folder
+     * @return bool
+     */
+    function folder_exists ($folder) {
+        $path = realpath($folder);
+        return ($path !== false AND is_dir($path));
+    }
+
+    /**
+     * Функция проверяет, существует ли путь, при отсутствии - пытается создать. Возвращает true, если путь существует
+     * @param $base
+     * @return bool
+     */
+    function check_and_repair_path ($base) {
+        $result = folder_exists($base);
+        return $result ? $result : mkdir(trim($base), 0700, true);
     }

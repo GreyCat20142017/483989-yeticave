@@ -168,10 +168,11 @@
     }
 
     /**
-     * Функция возвращает либо массив с id пользователя (добавленного либо существующего) либо массив с описанием ошибки
+     * Функция возвращает true в случае успешного добавления пользователя, false - в случае ошибки
+     * Если пользователь с таким email уже сушествовал - возвращается массив c id.
      * @param $connection
      * @param $user
-     * @return array
+     * @return bool || array
      */
     function add_user ($connection, $user) {
 
@@ -194,11 +195,7 @@
 
         $res = mysqli_stmt_execute($stmt);
 
-        if ($res) {
-            $new_id = mysqli_insert_id($connection);
-            return ['id' => $new_id];
-        }
-        return ['error' => mysqli_error($connection)];
+        return ($res) ? true : false;
     }
 
     /**
@@ -208,7 +205,7 @@
      * @return array|null
      */
     function get_user_by_email ($connection, $email) {
-        $sql = 'SELECT id, email, user_password FROM users WHERE email="' . mysqli_real_escape_string($connection, $email) . '" LIMIT 1';
+        $sql = 'SELECT id, email, user_password, name FROM users WHERE email="' . mysqli_real_escape_string($connection, $email) . '" LIMIT 1';
         $data = get_data_from_db($connection, $sql, 'Невозможно получить данные пользователя', true);
         if (!$data) {
             $result = ['status' => get_assoc_element(GET_DATA_STATUS, 'no_data'), 'data' => null];

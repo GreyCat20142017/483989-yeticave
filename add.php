@@ -1,6 +1,13 @@
 <?php
+    session_start();
 
     require_once('functions.php');
+
+    if (!is_auth_user()) {
+        http_response_code(403);
+//        header("Location: /");
+        exit();
+    }
 
     $categories = get_all_categories($connection);
 
@@ -83,8 +90,8 @@
             'main_content' => $page_content,
             'title' => 'Добавление лота',
             'categories_content' => $categories_content,
-            'is_auth' => $is_auth,
-            'user_name' => $user_name
+            'is_auth' => is_auth_user(),
+            'user_name' => get_auth_user_property('name')
         ]);
 
     print($layout_content);

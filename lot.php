@@ -1,9 +1,8 @@
 <?php
 
-    require_once('constants.php');
-    require_once('connection.php');
+    session_start();
+
     require_once('functions.php');
-    require_once('db_functions.php');
 
     $lot_id = isset($_GET['id']) ? $_GET['id'] : null;
     $lot = $lot_id ? get_lot_info($connection, $lot_id) : null;
@@ -23,6 +22,7 @@
             'lot' => $lot,
             'categories_content' => $categories_content,
             'images' => get_assoc_element(PATHS, 'images'),
+            'is_auth' => is_auth_user()
         ]);
 
     $layout_content = include_template('layout.php',
@@ -30,8 +30,8 @@
             'main_content' => $page_content,
             'title' => get_assoc_element($lot, 'name'),
             'categories_content' => $categories_content,
-            'is_auth' => $is_auth,
-            'user_name' => $user_name
+            'is_auth' => is_auth_user(),
+            'user_name' => get_auth_user_property('name')
         ]);
 
     if (!$is_ok) {
