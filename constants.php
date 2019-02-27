@@ -1,5 +1,5 @@
 <?php
-    define('LOTS_PER_PAGE', 9);
+    define('RECORDS_PER_PAGE', 9);
     define('ERROR_KEY', 'error');
     define('EMPTY_CATEGORY', 'Выберите категорию');
     define('IMAGE_RULE', 'image_validation');

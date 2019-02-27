@@ -10,6 +10,7 @@
     $is_ok = ($lot_id && $lot && !was_error($lot));
 
     $categories = get_all_categories($connection);
+    $history = get_lot_history($connection, $lot_id);
 
     $categories_content = include_template('categories.php',
         [
@@ -17,10 +18,16 @@
             'style' => get_assoc_element(CATEGORY_STYLES, 'bar')
         ]);
 
+    $history_content = include_template('lot-history.php',
+        [
+            'bids' => $history
+        ]);
+
     $page_content = include_template($is_ok ? 'lot.php' : '404.php',
         [
             'lot' => $lot,
             'categories_content' => $categories_content,
+            'history_content' => $history_content,
             'images' => get_assoc_element(PATHS, 'images'),
             'is_auth' => is_auth_user()
         ]);

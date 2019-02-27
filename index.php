@@ -5,7 +5,7 @@
     require_once('functions.php');
 
     $categories = get_all_categories($connection);
-    $lots = get_open_lots($connection, LOTS_PER_PAGE);
+    $lots = get_open_lots($connection, RECORDS_PER_PAGE);
 
     $main_categories_content = include_template('categories.php',
         [

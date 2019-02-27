@@ -147,3 +147,39 @@
         $result = folder_exists($base);
         return $result ? $result : mkdir(trim($base), 0700, true);
     }
+
+    /**
+     * Функция возвращает название класса для кнопки пагинации активной страницы
+     * @param $page
+     * @param $active
+     * @return string
+     */
+    function get_active_page_classname ($page, $active) {
+        return ($page == $active) ? 'pagination-item-active' : '';
+    }
+
+    /**
+     * Возвращает текст href для кнопки пагинации "Назад"
+     * @param $active
+     * @param $id
+     * @param $pagination_context
+     * @return string
+     */
+    function get_prev_href ($pagination_context, $id, $active) {
+        return $active > 1 ?
+            ' href="' . $pagination_context . '.php?id=' . $id . '&page=' . ($active - 1) . '"' :
+            '';
+    }
+
+    /**
+     * Возвращает текст href для кнопки пагинации "Вперед"
+     * @param $active
+     * @param $id
+     * @param $pagination_context
+     * @return string
+     */
+    function get_next_href ($pagination_context, $id, $active, $last) {
+        return $active < $last ?
+            ' href="' . $pagination_context . '.php?id=' . $id . '&page=' . ($active + 1) . '"' :
+            '';
+    }

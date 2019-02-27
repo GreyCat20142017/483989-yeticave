@@ -74,11 +74,12 @@
      * @param int $offset optional
      * @return array
      */
-    function get_open_lots (&$connection, $limit, $offset = 0) {
+    function get_open_lots (&$connection, $limit, $offset = 0, $category_id = null) {
+        $category_condition = $category_id ? ' AND l.category_id = ' . mysqli_real_escape_string($connection, $category_id) . ' ' : '';
         $sql = 'SELECT l.id, c.name AS category, l.name, l.price, l.image
                 FROM lots AS l
                 JOIN categories AS c ON l.category_id = c.id
-                WHERE l.winner_id IS NULL
+                WHERE l.winner_id IS NULL ' .  $category_condition . ' 
                 ORDER BY l.creation_date DESC ' . ' LIMIT ' . $limit . ' OFFSET ' . $offset . ';';
         return get_data_from_db($connection, $sql, 'Cписок лотов недоступен');
     }
@@ -215,4 +216,36 @@
             $result = ['status' => get_assoc_element(GET_DATA_STATUS, 'data_received'), 'data' => $data];
         }
         return $result;
+    }
+
+    /**
+     * Функция возвращает результаты расчета для пагинации по лотам и категориям.
+     * Передается соединение, число записей на страницу и в качестве необязательного параметра id категории
+     * @param $connection
+     * @param $limit
+     * @param null $category_id
+     * @return array|null
+     */
+    function get_lot_category_pagination ($connection, $limit, $category_id = null) {
+        $category_condition = $category_id ?
+            ' WHERE category_id = ' . mysqli_real_escape_string($connection, $category_id) . ' GROUP BY category_id;' :
+            '';
+        $sql = 'SELECT CEIL(COUNT(*) / ' . $limit . ') AS page_count, COUNT(*) AS total_records FROM lots ' . $category_condition;
+        $data = get_data_from_db($connection, $sql, 'Невозможно получить данные для пагинации', true);
+        return (!$data || was_error($data)) ? [] : $data;
+    }
+
+    function get_lot_history ($connection, $lot_id) {
+        $sql = 'SELECT u.name, b.declared_price, b.placement_date,   
+               CASE
+                 WHEN ABS(TIMESTAMPDIFF(MINUTE, NOW(), b.placement_date)) < 1 THEN "меньше минуты назад"
+                 WHEN ABS(TIMESTAMPDIFF(MINUTE, NOW(), b.placement_date)) < 60 THEN concat("около ", ABS(TIMESTAMPDIFF(MINUTE, NOW(), b.placement_date)) , " минут назад")
+                 WHEN ABS(TIMESTAMPDIFF(HOUR , NOW(), b.placement_date)) < 24 THEN concat("около ", ABS(TIMESTAMPDIFF(HOUR , NOW(), b.placement_date)) , " часов назад")
+                 ELSE DATE_FORMAT(b.placement_date, "%d.%m.%Y в %H:%i") END as time_ago
+                FROM bids AS b
+                       join users AS u on b.user_id = u.id
+                WHERE b.lot_id = ' . $lot_id . '
+                ORDER BY b.placement_date DESC;';
+        $data = get_data_from_db($connection, $sql, 'Невозможно историю для лота');
+        return (!$data || was_error($data)) ? [] : $data;
     }

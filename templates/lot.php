@@ -30,6 +30,7 @@
                     </div>
                 </div>
                 <?php endif; ?>
+                <?= $history_content ?>
             </div>
         </div>
     </section>
