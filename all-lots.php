@@ -7,8 +7,7 @@
     $categories = get_all_categories($connection);
 
     $category_id = isset($_GET['id']) ? intval(strip_tags($_GET['id'])) : null;
-    $page = isset($_GET['page'])? intval(strip_tags($_GET['page'])): 1;
-
+    $page = isset($_GET['page']) ? intval(strip_tags($_GET['page'])) : 1;
 
     $index = array_search($category_id, array_column($categories, 'id'));
     $pagination_data = get_lot_category_pagination($connection, RECORDS_PER_PAGE, $category_id);
@@ -18,8 +17,7 @@
         'Все лоты в категории <span>«' . ($index >= 0 ? get_assoc_element(get_element($categories, $index), 'name') : '') . '»</span>' :
         'Все лоты';
 
-    $lots = get_open_lots($connection, RECORDS_PER_PAGE, ($page-1) * RECORDS_PER_PAGE, $category_id);
-
+    $lots = get_open_lots($connection, RECORDS_PER_PAGE, ($page - 1) * RECORDS_PER_PAGE, $category_id);
 
     $main_categories_content = include_template('categories.php',
         [
@@ -64,5 +62,3 @@
         ]);
 
     print($layout_content);
-
-?>

@@ -23,8 +23,9 @@
             <nav class="user-menu">
                 <?php if ($is_auth): ?>
                     <div class="user-menu__logged">
-                        <p><?= strip_tags($user_name) ?></p>
-                        <a href="logout.php">Выход</a>
+                        <p><?= strip_tags($user_name) ?></a></p>
+                        <a href="my-lots.php">Мои ставки&nbsp;</a>
+                        <a href="logout.php">&nbsp;Выход</a>
                     </div>
                 <?php else: ?>
                     <ul class="user-menu__list">

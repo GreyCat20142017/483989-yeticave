@@ -175,3 +175,28 @@
             ' href="' . $pagination_context . '.php?id=' . $id . '&page=' . ($active + 1) . '"' :
             '';
     }
+
+    /**
+     * Функция возвращает название класса-модификатора для get_rates__item в зависимости от результата из get_user_bids
+     * @param $result
+     * @return string
+     */
+    function get_rates__item_classname ($result) {
+        return get_assoc_element(RATE_CLASSNAME, $result);
+    }
+
+    /**
+     * Функция возвращает название класса-модификатора для get_rates__item в зависимости от результата из get_user_bids
+     * @param $result
+     * @param $expired
+     * @return string
+     */
+    function get_timer_classname ($result, $expired) {
+        $classname = get_assoc_element(TIMER_CLASSNAME, $result);
+        $classname = ($expired) && empty($classname) ? get_assoc_element(TIMER_CLASSNAME, EXPIRED) : $classname;
+//        var_dump($result);
+//        var_dump($expired);
+//        var_dump($classname);
+//        die;
+        return $classname;
+    }
