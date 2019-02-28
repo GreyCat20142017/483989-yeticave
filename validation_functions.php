@@ -1,5 +1,4 @@
 <?php
-
     /**
      * Функция возращает название класса для формы на основе переданного массива с результатами валидации
      * @param $errors
@@ -133,6 +132,9 @@
                 return get_lot_date_validation_result($current_field);
             case 'decimal_validation':
                 return get_decimal_validation_result($current_field);
+            case 'auth_validation':
+                return is_auth_user() ? '' : 'Необходимо авторизоваться';
+
             default:
                 return '';
         }

@@ -27,24 +27,16 @@
 
     /**
      * Функция округляет число в большую сторону и возвращает строку с добавленным символом рубля и делением на разряды
-     * Необязательный параметр simple позволяет вывести сумму без стилизованного тега с svg
+     * Необязательный параметр simple позволяет вывести сумму без стилизованного тега с svg,
      * @param $sum
      * @param bool $simple optional, default = false
+     * @param bool $only_digit optional, default = false
      * @return string
      */
-    function get_rubles ($sum, $simple = false) {
-        $ruble = $simple ? 'р' : '<b class="rub">р</b>';
-        return number_format(ceil($sum), 0, '', ' ') . ' ' . $ruble;
-    }
-
-    /**
-     * Функция возвращает разницу между текущим временем и ближайшей полуночью в виде строки в формате ЧЧ-ММ
-     * @return string
-     */
-    function get_lot_lifetime () {
-        $current_date = date_create("now");
-        $limit_date = date_create("tomorrow midnight");
-        return date_interval_format(date_diff($current_date, $limit_date), "%H:%I");
+    function get_rubles ($sum, $simple = false, $only_digit = false) {
+        $ruble = ' ' . ($simple ? 'р' : '<b class="rub">р</b>');
+        $ruble = $only_digit ? '' : $ruble;
+        return number_format(ceil($sum), 0, '', ' ') . $ruble;
     }
 
     /**
