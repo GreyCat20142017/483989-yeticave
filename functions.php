@@ -194,9 +194,5 @@
     function get_timer_classname ($result, $expired) {
         $classname = get_assoc_element(TIMER_CLASSNAME, $result);
         $classname = ($expired) && empty($classname) ? get_assoc_element(TIMER_CLASSNAME, EXPIRED) : $classname;
-//        var_dump($result);
-//        var_dump($expired);
-//        var_dump($classname);
-//        die;
         return $classname;
     }
