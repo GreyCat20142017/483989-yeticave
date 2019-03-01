@@ -1,5 +1,5 @@
 <?php
-    define('LOTS_PER_PAGE', 9);
+    define('RECORDS_PER_PAGE', 9);
     define('ERROR_KEY', 'error');
     define('EMPTY_CATEGORY', 'Выберите категорию');
     define('IMAGE_RULE', 'image_validation');
@@ -35,5 +35,20 @@
     ]);
 
     define('YETI_SESSION', 'current_user');
+
+    define('BIDDING_IS_OVER', 'Торги окончены');
+    define('FINAL_BID', 'Ставка выиграла');
+    define('EXPIRED', 'Срок лота истек');
+
+    define('RATE_CLASSNAME', [
+        BIDDING_IS_OVER => 'rates__item--end',
+        FINAL_BID =>  'rates__item--win'
+    ]);
+
+    define('TIMER_CLASSNAME', [
+        BIDDING_IS_OVER => 'timer--end',
+        FINAL_BID =>  'timer--win',
+        EXPIRED =>  'timer--finishing',
+    ]);
 
     date_default_timezone_set('Europe/Moscow');

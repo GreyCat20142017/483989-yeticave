@@ -14,22 +14,24 @@
                 <p class="lot-item__description"><?= get_assoc_element($lot, 'description'); ?></p>
             </div>
             <div class="lot-item__right">
-                <?php if ($is_auth): ?>
-                <div class="lot-item__state">
-                    <div class="lot-item__timer timer">
-                        10:54
-                    </div>
-                    <div class="lot-item__cost-state">
-                        <div class="lot-item__rate">
-                            <span class="lot-item__amount">Текущая цена</span>
-                            <span class="lot-item__cost"><?= get_rubles(get_assoc_element($lot, 'price')); ?></span>
+                <?php if (!$bid_hidden_status): ?>
+                    <div class="lot-item__state">
+                        <div class="lot-item__timer timer">
+                            <?= get_assoc_element($lot, 'time_left'); ?>
                         </div>
-                        <div class="lot-item__min-cost">
-                            Мин. ставка <span><?= get_rubles(get_assoc_element($lot, 'min_bid'), true); ?> </span>
+                        <div class="lot-item__cost-state">
+                            <div class="lot-item__rate">
+                                <span class="lot-item__amount">Текущая цена</span>
+                                <span class="lot-item__cost"><?= get_rubles(get_assoc_element($lot, 'price')); ?></span>
+                            </div>
+                            <div class="lot-item__min-cost">
+                                Мин. ставка <span><?= get_rubles(get_assoc_element($lot, 'min_bid'), true); ?> </span>
+                            </div>
                         </div>
+                        <?= $bid_content ?>
                     </div>
-                </div>
                 <?php endif; ?>
+                <?= $history_content ?>
             </div>
         </div>
     </section>

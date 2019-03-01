@@ -74,11 +74,14 @@
      * @param int $offset optional
      * @return array
      */
-    function get_open_lots (&$connection, $limit, $offset = 0) {
-        $sql = 'SELECT l.id, c.name AS category, l.name, l.price, l.image
+    function get_open_lots (&$connection, $limit, $offset = 0, $category_id = null) {
+        $category_condition = $category_id ? ' AND l.category_id = ' . mysqli_real_escape_string($connection, $category_id) . ' ' : '';
+        $sql = 'SELECT l.id, c.name AS category, l.name, l.price, l.image, 
+                   CONCAT(floor(GREATEST(0, TIMESTAMPDIFF(MINUTE,  NOW(), completion_date)) / 60) , ":",
+                   LPAD(floor(GREATEST(0, TIMESTAMPDIFF(MINUTE,  NOW(), completion_date)) % 60), 2, "0")) AS time_left
                 FROM lots AS l
                 JOIN categories AS c ON l.category_id = c.id
-                WHERE l.winner_id IS NULL
+                WHERE (completion_date > NOW() ) AND (l.winner_id IS NULL) ' . $category_condition . ' 
                 ORDER BY l.creation_date DESC ' . ' LIMIT ' . $limit . ' OFFSET ' . $offset . ';';
         return get_data_from_db($connection, $sql, 'Cписок лотов недоступен');
     }
@@ -91,9 +94,14 @@
      * @return array
      */
     function get_lot_info (&$connection, $lot_id) {
-        $sql = 'SELECT l.id, c.name AS category, l.name, l.creation_date, l.price, l.description, l.image, (l.price + l.step) AS min_bid
+        $sql = 'SELECT  l.id, l.owner_id, c.name AS category, l.name, l.creation_date, l.completion_date, l.price, l.description, l.image,
+                   CASE WHEN MAX(b.declared_price) IS NULL THEN l.price ELSE MAX(b.declared_price) END + l.step AS min_bid,
+                   l.completion_date > NOW() AS not_expired,
+                   CONCAT(floor(GREATEST(0, TIMESTAMPDIFF(MINUTE,  NOW(), completion_date)) / 60) , ":",
+                   LPAD(floor(GREATEST(0, TIMESTAMPDIFF(MINUTE,  NOW(), completion_date)) % 60), 2, "0")) AS time_left
                 FROM lots AS l
-                       JOIN categories AS c ON l.category_id = c.id
+                INNER JOIN categories AS c ON l.category_id = c.id
+                LEFT OUTER JOIN bids AS b ON l.id = b.lot_id
                 WHERE l.id = ' . $lot_id . ';';
         return get_data_from_db($connection, $sql, 'Невозможно получить данные о лоте ' . $lot_id, true);
     }
@@ -147,7 +155,7 @@
      */
     function get_id_existance ($connection, $table, $id) {
         $data = [[ERROR_KEY => 'Id =  ' . $id . ' в таблице ' . $table . ' не существует! ']];
-        $sql = 'SELECT id FROM ' . $table . ' WHERE id = ' . $id . ' LIMIT 1';
+        $sql = 'SELECT id FROM ' . $table . ' WHERE id = ' . $id . ' LIMIT 1;';
         $result = get_data_from_db($connection, $sql, 'Невозможно получить id из таблицы ' . $table, true);
         if ($result) {
             $data = $result;
@@ -163,7 +171,7 @@
      * @return null || array
      */
     function get_id_by_email ($connection, $email) {
-        $sql = 'SELECT id FROM users WHERE email="' . mysqli_real_escape_string($connection, $email) . '" LIMIT 1';
+        $sql = 'SELECT id FROM users WHERE email="' . mysqli_real_escape_string($connection, $email) . '" LIMIT 1;';
         return get_data_from_db($connection, $sql, 'Невозможно получить id пользователя', true);
     }
 
@@ -205,7 +213,7 @@
      * @return array|null
      */
     function get_user_by_email ($connection, $email) {
-        $sql = 'SELECT id, email, user_password, name FROM users WHERE email="' . mysqli_real_escape_string($connection, $email) . '" LIMIT 1';
+        $sql = 'SELECT id, email, user_password, name FROM users WHERE email="' . mysqli_real_escape_string($connection, $email) . '" LIMIT 1;';
         $data = get_data_from_db($connection, $sql, 'Невозможно получить данные пользователя', true);
         if (!$data) {
             $result = ['status' => get_assoc_element(GET_DATA_STATUS, 'no_data'), 'data' => null];
@@ -216,3 +224,147 @@
         }
         return $result;
     }
+
+    /**
+     * Функция возвращает результаты расчета для пагинации по лотам и категориям.
+     * Передается соединение, число записей на страницу и в качестве необязательного параметра id категории
+     * @param $connection
+     * @param $limit
+     * @param null $category_id
+     * @return array|null
+     */
+    function get_lot_category_pagination ($connection, $limit, $category_id = null) {
+        $category_condition = $category_id ?
+            ' WHERE category_id = ' . mysqli_real_escape_string($connection, $category_id) . ' GROUP BY category_id;' :
+            '';
+        $sql = 'SELECT CEIL(COUNT(*) / ' . $limit . ') AS page_count, COUNT(*) AS total_records FROM lots ' . $category_condition;
+        $data = get_data_from_db($connection, $sql, 'Невозможно получить данные для пагинации', true);
+        return (!$data || was_error($data)) ? [] : $data;
+    }
+
+    /**
+     * Функция возвращает данные о сделанных ставках по лоту либо пустой массив
+     * @param $connection
+     * @param $lot_id
+     * @return array
+     */
+    function get_lot_history ($connection, $lot_id) {
+        $sql = 'SELECT u.name, b.declared_price, b.placement_date,   
+                   CASE
+                     WHEN ABS(TIMESTAMPDIFF(MINUTE, NOW(), b.placement_date)) < 1 THEN "меньше минуты назад"
+                     WHEN ABS(TIMESTAMPDIFF(MINUTE, NOW(), b.placement_date)) < 60 THEN CONCAT("около ", ABS(TIMESTAMPDIFF(MINUTE, NOW(), b.placement_date)) , " минут назад")
+                     WHEN ABS(TIMESTAMPDIFF(HOUR , NOW(), b.placement_date)) < 24 THEN CONCAT("около ", ABS(TIMESTAMPDIFF(HOUR , NOW(), b.placement_date)) , " часов назад")
+                     WHEN ABS(TIMESTAMPDIFF(HOUR, NOW(), b.placement_date)) < 48 THEN CONCAT("Вчера, в ", DATE_FORMAT(b.placement_date, "%H:%i"))
+                     ELSE DATE_FORMAT(b.placement_date, "%d.%m.%Y в %H:%i") END AS time_ago
+                    FROM bids AS b
+                           join users AS u ON b.user_id = u.id
+                    WHERE b.lot_id = ' . $lot_id . '
+                    ORDER BY b.placement_date DESC;';
+        $data = get_data_from_db($connection, $sql, 'Невозможно получить историю для лота');
+        return (!$data || was_error($data)) ? [] : $data;
+    }
+
+    /**
+     * Функция возвращает минимальную сумму следующей ставки, либо ноль в случае ошибки
+     * @param $connection
+     * @param $lot_id
+     * @return int
+     */
+    function get_next_bid ($connection, $lot_id) {
+        $sql = 'SELECT CASE WHEN MAX(b.declared_price) IS NULL THEN l.price ELSE MAX(b.declared_price) END + l.step AS next_bid
+                    FROM lots AS l
+                           LEFT OUTER JOIN bids AS b ON l.id = b.lot_id
+                    WHERE b.lot_id = ' . $lot_id . ';';
+        $data = get_data_from_db($connection, $sql, 'Невозможно получить данные о ставках лота', true);
+        return (!$data || was_error($data)) ? 0 : intval(get_assoc_element($data, 'next_bid'));
+    }
+
+    /**
+     * Функция возврщает true, false или ошибку как результат попытки добпавления лота
+     * @param $connection
+     * @param $lot_id
+     * @param int $current_user
+     * @param $declared_price
+     * @return array|bool
+     */
+    function add_bid ($connection, $lot_id, $current_user = 1, $declared_price, &$errors) {
+        $user_status = get_id_existance($connection, 'users', $current_user);
+        $lot_status = get_id_existance($connection, 'lots', $lot_id);
+        $next_bid = get_next_bid($connection, $lot_id);
+
+        if (was_error($user_status) || was_error($lot_status) || $declared_price < $next_bid) {
+            add_error_message($errors, 'cost', 'Попытка использовать некорректные данные для добавления ставки!');
+            return false;
+        }
+
+        $sql = 'INSERT INTO bids (user_id, lot_id, declared_price) 
+                          VALUES ( ?, ?, ?)';
+
+        $stmt = db_get_prepare_stmt($connection, $sql, [
+            $current_user,
+            $lot_id,
+            $declared_price
+        ]);
+
+        $res = mysqli_stmt_execute($stmt);
+
+        return $res ? true : false;
+    }
+
+    /**
+     * Возвращает true, если пользователь имеет возможноcть добавить ставку к лоту. Если не удалось получить данные,
+     * или пользователь уже добавлял ставку - возвращается false
+     * @param $connection
+     * @param $lot_id
+     * @param $user_id
+     * @return bool
+     */
+    function get_bid_ability ($connection, $lot_id, $user_id) {
+        $sql = 'SELECT COUNT(*) AS amount FROM bids WHERE lot_id=' . mysqli_real_escape_string($connection, $lot_id) . ' AND 
+                user_id=' . mysqli_real_escape_string($connection, $user_id) . ';';
+        $data = get_data_from_db($connection, $sql, 'Невозможно получить данные', true);
+        return (!$data || was_error($data)) ? false : (intval(get_assoc_element($data, 'amount')) === 0);
+    }
+
+    /**
+     * Функция возвращает массив со ставками пользователя, либо пустой массив в случае ошибки
+     * @param $connection
+     * @param $user_id
+     * @return array
+     */
+    function get_user_bids($connection, $user_id) {
+        $sql = 'SELECT b.lot_id,
+                   REPLACE(l.image, "lot-", "rate") AS image,
+                   l.name,
+                   c.name AS category,
+                   b.declared_price,
+                   CASE
+                     WHEN ABS(TIMESTAMPDIFF(MINUTE, NOW(), b.placement_date)) < 1 THEN "меньше минуты назад"
+                     WHEN ABS(TIMESTAMPDIFF(MINUTE, NOW(), b.placement_date)) < 60 THEN CONCAT("около ", ABS(TIMESTAMPDIFF(MINUTE, NOW(), b.placement_date)), " минут назад")
+                     WHEN ABS(TIMESTAMPDIFF(HOUR, NOW(), b.placement_date)) < 24 THEN CONCAT("около ", ABS(TIMESTAMPDIFF(HOUR, NOW(), b.placement_date)), " часов назад")
+                     WHEN ABS(TIMESTAMPDIFF(HOUR, NOW(), b.placement_date)) < 48 THEN CONCAT("Вчера, в ", DATE_FORMAT(b.placement_date, "%H:%i"))
+                     ELSE DATE_FORMAT(b.placement_date, "%d.%m.%Y в %H:%i") 
+                   END AS placement_date,
+                   CASE
+                     WHEN b.id = l.winner_id THEN "' . FINAL_BID . '"
+                     WHEN l.winner_id IS NOT NULL THEN "' . BIDDING_IS_OVER . '"
+                     ELSE CONCAT(floor(GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), completion_date)) / 3600), ":",
+                                 LPAD(floor(GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), completion_date)) % 3600), 2, "0"), ":",
+                                 LPAD(GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), completion_date)) -
+                                      floor(GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), completion_date)) / 3600) -
+                                      floor(GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), completion_date)) % 3600), 2, "0")
+                       )
+                    END AS result,
+                    TIMESTAMPDIFF(minute,  NOW(), completion_date) <=0 AS expired,
+                    CASE
+                     WHEN b.id = l.winner_id THEN u.contacts
+                     ELSE ""
+                    END as contacts
+                    FROM bids AS b
+                           JOIN lots AS l ON b.lot_id = l.id
+                           JOIN categories AS c ON l.category_id = c.id
+                           JOIN users AS u ON l.owner_id = u.id
+                    WHERE b.user_id = ' . $user_id. ';';
+        $data = get_data_from_db($connection, $sql, 'Невозможно получить данные о ставках пользователя');
+        return (!$data || was_error($data)) ? [] : $data;
+}

@@ -32,7 +32,7 @@
                                     <span class="lot__cost"><?= get_rubles(get_pure_data($lot, 'price')); ?></span>
                                 </div>
                                 <div class="lot__timer timer">
-                                    <?= get_lot_lifetime(); ?>
+                                    <?= get_pure_data($lot, 'time_left'); ?>
                                 </div>
                             </div>
                         </div>

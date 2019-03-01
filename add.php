@@ -5,7 +5,6 @@
 
     if (!is_auth_user()) {
         http_response_code(403);
-//        header("Location: /");
         exit();
     }
 
@@ -42,7 +41,7 @@
 
         $errors = get_validation_result($fields, $lot, $_FILES);
 
-        $status_ok = empty(get_form_validation_classname($errors));
+        $status_ok = empty(get_form_validation_classname($errors)) && is_auth_user();
 
         $image_fields = get_image_fields($fields);
 
@@ -50,7 +49,7 @@
 
             try_upload_images($image_fields, $_FILES, $errors, get_assoc_element(PATHS, 'images'), 'lot', $lot);
 
-            $add_result = add_lot($connection, $lot);
+            $add_result = add_lot($connection, $lot, get_auth_user_property('id'));
             if (isset($add_result) && array_key_exists('id', $add_result)) {
                 header('Location: lot.php?id=' . get_assoc_element($add_result, 'id'));
             } else {

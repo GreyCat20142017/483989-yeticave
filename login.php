@@ -56,6 +56,7 @@
                     break;
 
                 case get_assoc_element(GET_DATA_STATUS, 'db_error'):
+                    add_error_message($errors, 'email', 'Произошла ошибка при получении данных пользователей');
                     break;
 
                 default:

@@ -27,24 +27,16 @@
 
     /**
      * Функция округляет число в большую сторону и возвращает строку с добавленным символом рубля и делением на разряды
-     * Необязательный параметр simple позволяет вывести сумму без стилизованного тега с svg
+     * Необязательный параметр simple позволяет вывести сумму без стилизованного тега с svg,
      * @param $sum
      * @param bool $simple optional, default = false
+     * @param bool $only_digit optional, default = false
      * @return string
      */
-    function get_rubles ($sum, $simple = false) {
-        $ruble = $simple ? 'р' : '<b class="rub">р</b>';
-        return number_format(ceil($sum), 0, '', ' ') . ' ' . $ruble;
-    }
-
-    /**
-     * Функция возвращает разницу между текущим временем и ближайшей полуночью в виде строки в формате ЧЧ-ММ
-     * @return string
-     */
-    function get_lot_lifetime () {
-        $current_date = date_create("now");
-        $limit_date = date_create("tomorrow midnight");
-        return date_interval_format(date_diff($current_date, $limit_date), "%H:%I");
+    function get_rubles ($sum, $simple = false, $only_digit = false) {
+        $ruble = ' ' . ($simple ? 'р' : '<b class="rub">р</b>');
+        $ruble = $only_digit ? '' : $ruble;
+        return number_format(ceil($sum), 0, '', ' ') . $ruble;
     }
 
     /**
@@ -146,4 +138,61 @@
     function check_and_repair_path ($base) {
         $result = folder_exists($base);
         return $result ? $result : mkdir(trim($base), 0700, true);
+    }
+
+    /**
+     * Функция возвращает название класса для кнопки пагинации активной страницы
+     * @param $page
+     * @param $active
+     * @return string
+     */
+    function get_active_page_classname ($page, $active) {
+        return ($page == $active) ? 'pagination-item-active' : '';
+    }
+
+    /**
+     * Возвращает текст href для кнопки пагинации "Назад"
+     * @param $active
+     * @param $id
+     * @param $pagination_context
+     * @return string
+     */
+    function get_prev_href ($pagination_context, $id, $active) {
+        return $active > 1 ?
+            ' href="' . $pagination_context . '.php?id=' . $id . '&page=' . ($active - 1) . '"' :
+            '';
+    }
+
+    /**
+     * Возвращает текст href для кнопки пагинации "Вперед"
+     * @param $active
+     * @param $id
+     * @param $pagination_context
+     * @return string
+     */
+    function get_next_href ($pagination_context, $id, $active, $last) {
+        return $active < $last ?
+            ' href="' . $pagination_context . '.php?id=' . $id . '&page=' . ($active + 1) . '"' :
+            '';
+    }
+
+    /**
+     * Функция возвращает название класса-модификатора для get_rates__item в зависимости от результата из get_user_bids
+     * @param $result
+     * @return string
+     */
+    function get_rates__item_classname ($result) {
+        return get_assoc_element(RATE_CLASSNAME, $result);
+    }
+
+    /**
+     * Функция возвращает название класса-модификатора для get_rates__item в зависимости от результата из get_user_bids
+     * @param $result
+     * @param $expired
+     * @return string
+     */
+    function get_timer_classname ($result, $expired) {
+        $classname = get_assoc_element(TIMER_CLASSNAME, $result);
+        $classname = ($expired) && empty($classname) ? get_assoc_element(TIMER_CLASSNAME, EXPIRED) : $classname;
+        return $classname;
     }

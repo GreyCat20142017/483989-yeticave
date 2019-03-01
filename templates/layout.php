@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title><?= $title; ?></title>
+    <title><?= strip_tags($title); ?></title>
     <link href="css/normalize.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
 </head>
@@ -23,8 +23,9 @@
             <nav class="user-menu">
                 <?php if ($is_auth): ?>
                     <div class="user-menu__logged">
-                        <p><?= strip_tags($user_name) ?></p>
-                        <a href="logout.php">Выход</a>
+                        <p><?= strip_tags($user_name) ?></a></p>
+                        <a href="my-lots.php">Мои ставки&nbsp;</a>
+                        <a href="logout.php">&nbsp;Выход</a>
                     </div>
                 <?php else: ?>
                     <ul class="user-menu__list">
