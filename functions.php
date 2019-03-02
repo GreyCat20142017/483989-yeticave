@@ -6,7 +6,6 @@
     require_once('db_functions.php');
     require_once('validation_functions.php');
     require_once('session_functions.php');
-    require_once('search.php');
 
     /**
      * Функция принимает два аргумента: имя файла шаблона и ассоциативный массив с данными для этого шаблона.

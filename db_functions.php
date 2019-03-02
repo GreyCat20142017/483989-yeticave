@@ -338,7 +338,7 @@
      */
     function get_user_bids ($connection, $user_id) {
         $sql = 'SELECT b.lot_id,
-                   REPLACE(l.image, "lot-", "rate") AS image,
+                   l.image,
                    l.name,
                    c.name AS category,
                    b.declared_price,

@@ -50,7 +50,7 @@
             'bid_hidden_status' => $bid_hidden_status
         ]);
 
-    $search_content = include_template('search.php', ['search_string' => $search_string]);
+    $search_content = include_template('search.php', ['search_string' => $search_string, 'search_enable' => false]);
 
     $layout_content = include_template('layout.php',
         [

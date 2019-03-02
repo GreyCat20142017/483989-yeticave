@@ -3,6 +3,7 @@
     session_start();
 
     require_once('functions.php');
+    require_once('search.php');
     require_once('winner_determination.php');
 
     $categories = get_all_categories($connection);
@@ -30,7 +31,7 @@
 
     require_once('search.php');
 
-    $search_content = include_template('search.php', ['search_string' => $search_string]);
+    $search_content = include_template('search.php', ['search_string' => $search_string, 'search_enable' => true]);
 
     $layout_content = include_template('layout.php',
         [
