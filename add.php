@@ -19,6 +19,7 @@
     $errors = [];
     $lot = [];
     $category = 0;
+    $search_string = '';
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -84,9 +85,12 @@
         'lot' => $lot
     ]);
 
+    $search_content = include_template('search.php', ['search_string' => $search_string]);
+
     $layout_content = include_template('layout.php',
         [
             'main_content' => $page_content,
+            'search_content' => $search_content,
             'title' => 'Добавление лота',
             'categories_content' => $categories_content,
             'is_auth' => is_auth_user(),

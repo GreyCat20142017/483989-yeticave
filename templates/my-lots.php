@@ -26,8 +26,9 @@
                     </td>
                     <td class="rates__timer">
                         <div
-                            class="timer <?= get_timer_classname(get_pure_data($bid, 'result'), get_pure_data($bid, 'expired')) ?>">
-                            <?= get_pure_data($bid, 'result'); ?>
+                            class="timer <?= get_timer_classname(get_pure_data($bid, 'result'), get_pure_data($bid, 'expired')) ?>"
+                            title="<?= get_pure_data($bid, 'result'); ?>">
+                            <?= get_timer_info(get_pure_data($bid, 'result'), get_pure_data($bid, 'time_left')); ?>
                         </div>
                     </td>
                     <td class="rates__price">

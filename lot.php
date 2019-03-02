@@ -12,6 +12,7 @@
     $categories = get_all_categories($connection);
     $history = $lot_id ? get_lot_history($connection, $lot_id) : [];
     $min_bid = intval(get_assoc_element($lot, 'min_bid'));
+    $search_string = '';
 
     require_once('bid.php');
 
@@ -49,8 +50,12 @@
             'bid_hidden_status' => $bid_hidden_status
         ]);
 
+    $search_content = include_template('search.php', ['search_string' => $search_string]);
+
     $layout_content = include_template('layout.php',
         [
+            'main_content' => $page_content,
+            'search_content' => $search_content,
             'main_content' => $page_content,
             'title' => get_assoc_element($lot, 'name'),
             'categories_content' => $categories_content,

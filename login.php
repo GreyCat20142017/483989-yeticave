@@ -16,6 +16,7 @@
     $user = [];
     $db_user = [];
     $status_text = 'Вход на сайт невозможен';
+    $search_string = '';
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -69,7 +70,7 @@
                 $_SESSION[YETI_SESSION] = [
                     'id' => get_assoc_element($db_user, 'id'),
                     'name' => get_assoc_element($db_user, 'name')
-                ];                ;
+                ];;
 
                 header('Location: index.php');
             }
@@ -83,9 +84,12 @@
         'status' => $status_text
     ]);
 
+    $search_content = include_template('search.php', ['search_string' => $search_string]);
+
     $layout_content = include_template('layout.php',
         [
             'main_content' => $page_content,
+            'search_content' => $search_content,
             'title' => 'Регистрация',
             'categories_content' => $categories_content,
             'is_auth' => is_auth_user(),

@@ -6,6 +6,7 @@
 
     $categories = get_all_categories($connection);
     $page_title = 'Мои ставки';
+    $search_string = '';
 
     $bids = is_auth_user() ? get_user_bids($connection, get_auth_user_property('id')) : [];
 
@@ -29,9 +30,12 @@
             'title' => $page_title
         ]);
 
+    $search_content = include_template('search.php', ['search_string' => $search_string]);
+
     $layout_content = include_template('layout.php',
         [
             'main_content' => $page_content,
+            'search_content' => $search_content,
             'title' => $page_title,
             'categories_content' => $footer_categories_content,
             'is_auth' => is_auth_user(),
