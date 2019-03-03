@@ -376,26 +376,6 @@
     }
 
     /**
-     * Функция возвращает в виде ассоциативного массива список лотов с информацией о будущем победителе либо пустой массив
-     * (в случае ошибки или отсутствия данных)
-     * @param $connection
-     * @return array
-     */
-    function get_last_bids ($connection) {
-        $sql = 'SELECT lb.last_bid, lb.lot_id, bb.user_id, u.email, u.name as username, ll.name, ll.completion_date, bb.declared_price
-                FROM (SELECT max(b.id) AS last_bid, b.lot_id
-                      FROM bids AS b
-                             JOIN lots AS l ON b.lot_id = l.id
-                      WHERE l.winner_id IS NULL  AND completion_date<=NOW()
-                      GROUP BY b.lot_id) AS lb
-                       JOIN bids AS bb ON lb.last_bid = bb.id
-                JOIN users AS u ON bb.user_id=u.id
-                       JOIN lots AS ll ON bb.lot_id=ll.id;';
-        $data = get_data_from_db($connection, $sql, 'Невозможно получить данные для выявления победителя');
-        return (!$data || was_error($data)) ? [] : $data;
-    }
-
-    /**
      * Функция возвращает результат полнотекстового поиска по имени и названию открытых лотов
      * @param $connection
      * @param $limit
@@ -421,11 +401,58 @@
      * @param $connection
      * @param $limit
      * @param null $category_id
-     * @return array|null
+     * @return array
      */
     function get_search_result_pagination ($connection, $limit, $search_string) {
         $condition = ' WHERE MATCH(l.name, l.description) AGAINST("' . $search_string . '" IN BOOLEAN MODE) AND (l.winner_id IS NULL) AND (l.completion_date > NOW()) ';
         $sql = 'SELECT CEIL(COUNT(*) / ' . $limit . ') AS page_count, COUNT(*) AS total_records FROM lots  as l ' . $condition;
         $data = get_data_from_db($connection, $sql, 'Невозможно получить данные для пагинации результатов поиска', true);
+        return (!$data || was_error($data)) ? []: $data;
+    }
+
+    /**
+     * Функция возвращает в виде ассоциативного массива список лотов с информацией о будущем победителе либо пустой массив
+     * (в случае ошибки или отсутствия данных)
+     * @param $connection
+     * @return array
+     */
+    function get_last_bids ($connection) {
+        $sql = 'SELECT lb.last_bid, lb.lot_id, bb.user_id, u.email, u.name as username, ll.name, ll.completion_date, bb.declared_price
+                FROM (SELECT max(b.id) AS last_bid, b.lot_id
+                      FROM bids AS b
+                             JOIN lots AS l ON b.lot_id = l.id
+                      WHERE l.winner_id IS NULL  AND completion_date<=NOW()
+                      GROUP BY b.lot_id) AS lb
+                       JOIN bids AS bb ON lb.last_bid = bb.id
+                JOIN users AS u ON bb.user_id=u.id
+                       JOIN lots AS ll ON bb.lot_id=ll.id;';
+        $data = get_data_from_db($connection, $sql, 'Невозможно получить данные для выявления победителей');
         return (!$data || was_error($data)) ? [] : $data;
+    }
+
+    /**
+     * Функция обновляет winner_id для ставок-победителей. В случае неудачи или отсутствия данных - возвращает пустой массив
+     * @param $connection
+     * @return array
+     */
+    function create_and_get_winners_list ($connection) {
+        $result = [];
+        $result_for_mail = get_last_bids($connection);
+        if (count($result_for_mail) > 0) {
+            $sql_update = 'UPDATE  lots,
+              (SELECT ll.id AS lot_id, bb.user_id
+               FROM lots AS ll
+                      JOIN
+                    (SELECT max(b.id) AS last_bid, b.lot_id
+                     FROM bids AS b
+                            JOIN lots AS l ON b.lot_id = l.id
+                     WHERE l.winner_id IS NULL
+                       AND completion_date <= NOW()
+                     GROUP BY b.lot_id) AS lb
+                    ON ll.id = lb.lot_id
+                      JOIN bids AS bb ON lb.last_bid = bb.id) AS tmp
+            SET winner_id = tmp.user_id WHERE lots.id = tmp.lot_id;';
+            $result = mysqli_query($connection, $sql_update) ? $result_for_mail : [];
+        }
+        return $result;
     }

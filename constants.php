@@ -63,4 +63,6 @@
         ALL_LOTS =>  'all-lots'
     ]);
 
+    define('TEST_EMAIL', 'nrz3siaatg81@mail.ru');
+
     date_default_timezone_set('Europe/Moscow');

@@ -4,7 +4,7 @@
 
     require_once('functions.php');
     require_once('search.php');
-    require_once('winner_determination.php');
+//    require_once('winner_determination.php');
 
     $categories = get_all_categories($connection);
     $lots = get_open_lots($connection, RECORDS_PER_PAGE);
