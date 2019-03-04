@@ -1,8 +1,7 @@
 <?php
 
     session_start();
-
-    require_once('functions.php');
+    require_once('init.php');
 
     $lot_id = isset($_GET['id']) ? $_GET['id'] : null;
     $lot = $lot_id ? get_lot_info($connection, $lot_id) : null;
@@ -50,7 +49,7 @@
             'bid_hidden_status' => $bid_hidden_status
         ]);
 
-    $search_content = include_template('search.php', ['search_string' => $search_string, 'search_enable' => false]);
+    $search_content = include_template('search.php', ['search_string' => $search_string]);
 
     $layout_content = include_template('layout.php',
         [

@@ -5,7 +5,7 @@
      * @param $config
      * @return mysqli
      */
-    function get_connection (&$config) {
+    function get_connection ($config) {
         $connection = mysqli_connect($config['host'], $config['user'], $config['password'], $config['database']);
         if ($connection) {
             mysqli_set_charset($connection, "utf8");
@@ -78,8 +78,7 @@
     function get_open_lots (&$connection, $limit, $offset = 0, $category_id = null) {
         $category_condition = $category_id ? ' l.category_id = ' . mysqli_real_escape_string($connection, $category_id) . '  AND ' : '';
         $sql = 'SELECT l.id, c.name AS category, l.name, l.price, l.image, 
-                   CONCAT(floor(GREATEST(0, TIMESTAMPDIFF(MINUTE,  NOW(), l.completion_date)) / 60) , ":",
-                   LPAD(floor(GREATEST(0, TIMESTAMPDIFF(MINUTE,  NOW(), l.completion_date)) % 60), 2, "0")) AS time_left
+                  GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), l.completion_date))  AS time_left
                 FROM lots AS l
                 JOIN categories AS c ON l.category_id = c.id
                 WHERE ' . $category_condition . ' (l.winner_id IS NULL) AND (l.completion_date > NOW()) 
@@ -98,8 +97,7 @@
         $sql = 'SELECT  l.id, l.owner_id, c.name AS category, l.name, l.creation_date, l.completion_date, l.price, l.description, l.image,
                    CASE WHEN MAX(b.declared_price) IS NULL THEN l.price ELSE MAX(b.declared_price) END + l.step AS min_bid,
                    l.completion_date > NOW() AS not_expired,
-                   CONCAT(floor(GREATEST(0, TIMESTAMPDIFF(MINUTE,  NOW(), completion_date)) / 60) , ":",
-                   LPAD(floor(GREATEST(0, TIMESTAMPDIFF(MINUTE,  NOW(), completion_date)) % 60), 2, "0")) AS time_left
+                   GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), l.completion_date)) AS time_left
                 FROM lots AS l
                 INNER JOIN categories AS c ON l.category_id = c.id
                 LEFT OUTER JOIN bids AS b ON l.id = b.lot_id
@@ -136,7 +134,7 @@
             get_assoc_element($lot, 'lot-image'),
             get_assoc_element($lot, 'lot-rate'),
             get_assoc_element($lot, 'lot-step'),
-            get_assoc_element($lot, 'lot-date')
+            date('Y-m-d', strtotime(get_assoc_element($lot, 'lot-date')))
         ]);
 
         $res = mysqli_stmt_execute($stmt);
@@ -352,16 +350,11 @@
                    CASE
                      WHEN b.user_id = l.winner_id THEN "' . FINAL_BID . '"
                      WHEN l.winner_id IS NOT NULL THEN "' . BIDDING_IS_OVER . '"
-                     WHEN TIMESTAMPDIFF(minute,  NOW(), completion_date) <=0 THEN  "' . EXPIRED . '"
+                     WHEN TIMESTAMPDIFF(SECOND,  NOW(), l.completion_date) <=0 THEN  "' . EXPIRED . '"
                      ELSE  "' . ACTIVE . '"
                     END AS result,
-                    CONCAT(floor(GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), completion_date)) / 3600), ":",
-                                 LPAD(floor(GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), completion_date)) % 3600), 2, "0"), ":",
-                                 LPAD(GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), completion_date)) -
-                                      floor(GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), completion_date)) / 3600) -
-                                      floor(GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), completion_date)) % 3600), 2, "0")
-                    ) AS time_left,
-                    TIMESTAMPDIFF(minute,  NOW(), completion_date) <=0 AS expired,
+                    GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), l.completion_date)) AS time_left,
+                    TIMESTAMPDIFF(SECOND,  NOW(), l.completion_date) <=0 AS expired,
                     CASE
                      WHEN b.user_id = l.winner_id THEN u.contacts
                      ELSE ""
@@ -385,8 +378,7 @@
      */
     function get_search_result ($connection, $limit, $offset = 0, $search_string) {
         $sql = 'SELECT l.id, c.name AS category, l.name, l.price, l.image, 
-                   CONCAT(floor(GREATEST(0, TIMESTAMPDIFF(MINUTE,  NOW(), l.completion_date)) / 60) , ":",
-                   LPAD(floor(GREATEST(0, TIMESTAMPDIFF(MINUTE,  NOW(), l.completion_date)) % 60), 2, "0")) AS time_left
+                GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), l.completion_date))  AS time_left
                 FROM lots AS l
                 JOIN categories AS c ON l.category_id = c.id
                 WHERE MATCH(l.name, l.description) AGAINST("' . $search_string . '" IN BOOLEAN MODE) AND (l.winner_id IS NULL) AND (l.completion_date > NOW()) 
@@ -407,7 +399,7 @@
         $condition = ' WHERE MATCH(l.name, l.description) AGAINST("' . $search_string . '" IN BOOLEAN MODE) AND (l.winner_id IS NULL) AND (l.completion_date > NOW()) ';
         $sql = 'SELECT CEIL(COUNT(*) / ' . $limit . ') AS page_count, COUNT(*) AS total_records FROM lots  as l ' . $condition;
         $data = get_data_from_db($connection, $sql, 'Невозможно получить данные для пагинации результатов поиска', true);
-        return (!$data || was_error($data)) ? []: $data;
+        return (!$data || was_error($data)) ? [] : $data;
     }
 
     /**

@@ -1,7 +1,7 @@
 <?php
-    session_start();
 
-    require_once('functions.php');
+    session_start();
+    require_once('init.php');
 
     if (!is_auth_user()) {
         http_response_code(403);
@@ -31,7 +31,7 @@
          * нужно установить false, при этом заполнение контролировать специфическими правилами
          */
         $fields = [
-            'category' => ['description' => 'Категория', 'required' => false, 'validation_rules' => ['category_validation']],
+            'category' => ['description' => 'Категория', 'required' => false, 'validation_rules' => ['category_validation'], 'special' => true],
             'lot-name' => ['description' => 'Наименование', 'required' => true],
             'message' => ['description' => 'Описание', 'required' => true],
             'lot-rate' => ['description' => 'Начальная цена', 'required' => true, 'validation_rules' => ['decimal_validation']],
@@ -85,7 +85,7 @@
         'lot' => $lot
     ]);
 
-    $search_content = include_template('search.php', ['search_string' => $search_string, 'search_enable' => false]);
+    $search_content = include_template('search.php', ['search_string' => $search_string]);
 
     $layout_content = include_template('layout.php',
         [

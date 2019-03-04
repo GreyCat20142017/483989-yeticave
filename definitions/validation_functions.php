@@ -70,10 +70,11 @@
             if (isset($field['validation_rules']) && is_array($field['validation_rules'])) {
                 foreach ($field['validation_rules'] as $rule) {
                     $is_required = get_assoc_element($field, 'required');
+                    $is_special = get_assoc_element($field, 'special');
                     $result = ($rule === IMAGE_RULE) ?
                         get_image_validation_result($field_name, $files, $is_required) :
                         get_additional_validation_result($rule, $current_field);
-                    if (!empty($result) && $is_required) {
+                    if (!empty($result) && ($is_required || $is_special)) {
                         add_error_message($errors, $field_name, $result);
                     }
                 }

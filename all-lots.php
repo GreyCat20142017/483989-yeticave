@@ -1,9 +1,7 @@
 <?php
 
     session_start();
-
-    require_once('functions.php');
-    require_once('search.php');
+    require_once('init.php');
 
     $categories = get_all_categories($connection);
 
@@ -20,7 +18,6 @@
         'Все лоты';
 
     $lots = get_open_lots($connection, RECORDS_PER_PAGE, ($page - 1) * RECORDS_PER_PAGE, $category_id);
-
 
     $main_categories_content = include_template('categories.php',
         [
@@ -40,7 +37,7 @@
             'page_count' => $page_count,
             'pages' => range(1, $page_count),
             'active' => $page,
-            'pagination_context' =>  get_assoc_element(PAGINATION_CONTEXT, ALL_LOTS),
+            'pagination_context' => get_assoc_element(PAGINATION_CONTEXT, ALL_LOTS),
             'pre_page_string' => ($category_id) ? 'id=' . $category_id . '&' : ''
 
         ]);
@@ -55,8 +52,7 @@
             'pagination_content' => $pagination_content
         ]);
 
-
-    $search_content = include_template('search.php', ['search_string' => $search_string, 'search_enable' => true]);
+    $search_content = include_template('search.php', ['search_string' => $search_string]);
 
     $layout_content = include_template('layout.php',
         [

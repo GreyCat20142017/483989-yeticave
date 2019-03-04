@@ -1,8 +1,7 @@
 <?php
 
     session_start();
-
-    require_once('functions.php');
+    require_once('init.php');
 
     $categories = get_all_categories($connection);
 
@@ -84,7 +83,7 @@
         'status' => $status_text
     ]);
 
-    $search_content = include_template('search.php', ['search_string' => $search_string, 'search_enable' => false]);
+    $search_content = include_template('search.php', ['search_string' => $search_string]);
 
     $layout_content = include_template('layout.php',
         [

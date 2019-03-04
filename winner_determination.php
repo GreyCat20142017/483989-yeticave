@@ -1,9 +1,11 @@
 <?php
 
-    require_once('functions.php');
+    require_once('init.php');
     require_once('./vendor/autoload.php');
 
     $winners = create_and_get_winners_list($connection);
+
+    $log = '<h3>Журнал отправки сообщений победителям (' . date('d.m.Y H:i') . ')</h3>';
 
     if ($winners && count($winners) > 0) {
         try {
@@ -31,13 +33,19 @@
                 $message->addPart($body_content, 'text/html');
                 $message->setFrom("keks@phpdemo.ru", "YetiCave");
                 $mailer = new Swift_Mailer($transport);
-                $mailer->send($message);
+                $result = $mailer->send($message);
+
+                $log = $log . '<p> Лот:  ' . get_assoc_element($winner, 'name') . ', победитель: ' . get_assoc_element($winner, 'username') . '</p>';
+                $log = $log . '<p> <small> Email: ' . get_assoc_element($winner, 'email') . ', время:  ' . date('d.m.Y H:i:s') . ', статус: ' . ($result ? 'отправлено' : 'не удалось отправить') . '</small></p>';
+                $log = $log . '<hr>';
 
             }
 
         } catch (Exception $e) {
-
         }
 
-        header('Location: index.php');
+    } else {
+        $log = $log . 'Победителей не выявлено';
     }
+
+    echo $log;
