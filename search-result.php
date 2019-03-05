@@ -5,15 +5,15 @@
 
     $categories = get_all_categories($connection);
 
-    $search_string = isset($_GET['search']) ? strip_tags($_GET['search']) : null;
+    $search_string = isset($_GET['search']) ? trim(strip_tags($_GET['search'])) : null;
     $page = isset($_GET['page']) ? intval(strip_tags($_GET['page'])) : 1;
 
     $pagination_data = get_search_result_pagination($connection, RECORDS_PER_PAGE, $search_string);
     $page_count = intval(get_assoc_element($pagination_data, 'page_count'));
 
-    $page_title = 'Результаты поиска по запросу «' . strip_tags($search_string) . '»';
+    $page_title = empty($search_string) ? 'Поле поиска не должно быть пустым!' : 'Результаты поиска по запросу «' . strip_tags($search_string) . '»';
 
-    $lots = get_search_result($connection, RECORDS_PER_PAGE, ($page - 1) * RECORDS_PER_PAGE, $search_string);
+    $lots = empty($search_string) ? [] : get_search_result($connection, RECORDS_PER_PAGE, ($page - 1) * RECORDS_PER_PAGE, $search_string);
 
     $main_categories_content = include_template('categories.php',
         [
