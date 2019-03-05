@@ -17,7 +17,7 @@
                 <?php if (!$bid_hidden_status): ?>
                     <div class="lot-item__state">
                         <div class="lot-item__timer timer">
-                            <?= gmdate('i:s', get_pure_data($lot, 'time_left')) ?>
+                            <?= get_formatted_time_from_seconds(get_pure_data($lot, 'time_left')) ?>
                         </div>
                         <div class="lot-item__cost-state">
                             <div class="lot-item__rate">

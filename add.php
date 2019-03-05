@@ -21,11 +21,17 @@
     $category = 0;
     $search_string = '';
 
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+        if (isset($_POST['lot-date'])) {
+            $_POST['lot-date'] = empty(trim($_POST['lot-date'])) ?  '' : '' . date('d.m.Y', strtotime(strip_tags($_POST['lot-date'])));
+        }
 
         $lot = array_map(function ($item) {
             return trim(strip_tags($item));
         }, $_POST);
+
         /**
          * Описания полей для валидации. Если правила слишком специфичны, то в required для обязательных полей
          * нужно установить false, при этом заполнение контролировать специфическими правилами

@@ -34,7 +34,7 @@
             'pages' => range(1, $page_count),
             'active' => $page,
             'pagination_context' => get_assoc_element(PAGINATION_CONTEXT, SEARCH_RESULT),
-            'pre_page_string' => 'search=' . $search_string . '&find=Найти&'
+            'pre_page_string' => 'search=' . $search_string . '&'
 
         ]);
 

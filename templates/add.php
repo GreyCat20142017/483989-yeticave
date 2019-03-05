@@ -55,8 +55,9 @@
             </div>
             <div class="form__item <?= get_field_validation_classname($errors, 'lot-date') ?>">
                 <label for="lot-date">Дата окончания торгов</label>
-                <input class="form__input-date" id="lot-date" type="text" name="lot-date"
-                       value="<?= get_pure_data($lot, 'lot-date'); ?>" required>
+                <input class="form__input-date" id="lot-date" type="date" name="lot-date"
+                       value="<?= empty(get_pure_data($lot, 'lot-date')) ? '' :  ''. date('Y-m-d', strtotime(get_pure_data($lot, 'lot-date'))); ?>"
+                       required>
                 <span class="form__error"><?= get_field_validation_message($errors, 'lot-date') ?></span>
             </div>
         </div>

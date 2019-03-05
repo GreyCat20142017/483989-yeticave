@@ -94,14 +94,19 @@
      * @return array
      */
     function get_lot_info (&$connection, $lot_id) {
-        $sql = 'SELECT  l.id, l.owner_id, c.name AS category, l.name, l.creation_date, l.completion_date, l.price, l.description, l.image,
-                   CASE WHEN MAX(b.declared_price) IS NULL THEN l.price ELSE MAX(b.declared_price) END + l.step AS min_bid,
-                   l.completion_date > NOW() AS not_expired,
-                   GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), l.completion_date)) AS time_left
-                FROM lots AS l
-                INNER JOIN categories AS c ON l.category_id = c.id
-                LEFT OUTER JOIN bids AS b ON l.id = b.lot_id
-                WHERE l.id = ' . $lot_id . ';';
+        $sql = 'SELECT l.id, l.owner_id, c.name AS category, l.name, l.creation_date, l.completion_date, l.price, l.description, l.image,
+           CASE WHEN b.declared_price IS NULL THEN l.price ELSE b.declared_price END + l.step AS min_bid,
+           CASE WHEN b.declared_price IS NULL THEN 0 ELSE b.declared_price END AS last_bid,
+           l.completion_date > NOW() AS not_expired,
+           GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), l.completion_date)) AS time_left
+            FROM lots AS l
+                   INNER JOIN categories AS c ON l.category_id = c.id
+                   LEFT OUTER JOIN (SELECT MAX(lot_id) AS lot_id, MAX(declared_price) AS declared_price
+                                    FROM bids
+                                    WHERE lot_id = ' . $lot_id . '
+                                    GROUP BY lot_id) AS b
+                                    ON l.id = b.lot_id
+            WHERE l.id = ' . $lot_id . ';';
         return get_data_from_db($connection, $sql, 'Невозможно получить данные о лоте ' . $lot_id, true);
     }
     /**

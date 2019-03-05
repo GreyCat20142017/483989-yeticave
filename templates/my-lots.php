@@ -27,8 +27,8 @@
                     <td class="rates__timer">
                         <div
                             class="timer <?= get_timer_classname(get_pure_data($bid, 'result'), get_pure_data($bid, 'expired')) ?>"
-                            title="<?= get_pure_data($bid, 'result'); ?>">
-                            <?= get_timer_info(get_pure_data($bid, 'result'), gmdate('H:i:s', get_pure_data($bid, 'time_left'))); ?>
+                            title="<?= get_pure_data($bid, 'result'); ?>" style="width: 112px;">
+                            <?= get_timer_info(get_pure_data($bid, 'result'), get_formatted_time_from_seconds(get_pure_data($bid, 'time_left') )); ?>
                         </div>
                     </td>
                     <td class="rates__price">

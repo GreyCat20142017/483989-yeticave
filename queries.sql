@@ -17,7 +17,7 @@ VALUES ('Доски и лыжи'),
 
 # Добавление пары пользователей
 INSERT INTO users (name, email, user_password, avatar, contacts, registration_date)
-VALUES ('Василий Пупкин', 'vasya@mail.ru', '$2y$10$0GYFabnO4kWUhOhvSaOQGOsT3zHGyQBsSuRcgbtlUIV19u84TEEgW', 'ava_1.svg', 'Почта:vasyaPup@mail.ru', DATE_ADD(NOW(), INTERVAL -2 MONTH)),
+VALUES ('Василий Пупкин', 'vasya@mail.ru', '$2y$10$0GYFabnO4kWUhOhvSaOQGOsT3zHGyQBsSuRcgbtlUIV19u84TEEgW', 'ava_1.svg', 'Почта: vasya@mail.ru', DATE_ADD(NOW(), INTERVAL -2 MONTH)),
        ('Василиса Пупкина', 'vasilisaPupkina@mail.ru', '$2y$10$0GYFabnO4kWUhOhvSaOQGOsT3zHGyQBsSuRcgbtlUIV19u84TEEgW', 'ava_2.svg', 'Почта, телеграф, телефон',
         DATE_ADD(NOW(), INTERVAL -3 WEEK));
 

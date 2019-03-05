@@ -213,5 +213,19 @@
      * @return mixed
      */
     function get_timer_info ($result, $time_left) {
-        return in_array($result, [FINAL_BID, EXPIRED]) ?  $result : $time_left;
+        return in_array($result, [FINAL_BID, EXPIRED]) ? $result : $time_left;
+    }
+
+    /**
+     * Функция возвращает время в формате H:i:s, принимая в качестве параметра количество оставшихся секунд.
+     * @param $seconds_left
+     * @return string
+     */
+    function get_formatted_time_from_seconds ($seconds_left) {
+        $seconds_left = empty($seconds_left) ? 0 : $seconds_left;
+        $days = floor($seconds_left / (3600 * 24));
+        $time = floor($seconds_left % (3600 * 24));
+        $parts = explode(':', gmdate('H:i:s', $time));
+        $parts[0] = intval($parts[0]) + $days * 24;
+        return implode(':', $parts);
     }

@@ -32,7 +32,7 @@
                                     <span class="lot__cost"><?= get_rubles(get_pure_data($lot, 'price')); ?></span>
                                 </div>
                                 <div class="lot__timer timer">
-                                    <?= get_pure_data($lot, 'time_left'); ?>
+                                    <?= get_formatted_time_from_seconds(get_pure_data($lot, 'time_left')); ?>
                                 </div>
                             </div>
                         </div>
@@ -42,3 +42,4 @@
         <?php endif; ?>
     </section>
 </main>
+
