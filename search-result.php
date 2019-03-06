@@ -5,19 +5,15 @@
 
     $categories = get_all_categories($connection);
 
-    $category_id = isset($_GET['id']) ? intval(strip_tags($_GET['id'])) : null;
+    $search_string = isset($_GET['search']) ? trim(strip_tags($_GET['search'])) : null;
     $page = isset($_GET['page']) ? intval(strip_tags($_GET['page'])) : 1;
 
-    $index = array_search($category_id, array_column($categories, 'id'));
-    $pagination_data = get_lot_category_pagination($connection, RECORDS_PER_PAGE, $category_id);
+    $pagination_data = get_search_result_pagination($connection, RECORDS_PER_PAGE, $search_string);
     $page_count = intval(get_assoc_element($pagination_data, 'page_count'));
-    $search_string = '';
 
-    $page_title = $category_id ?
-        'Все лоты в категории <span>«' . ($index >= 0 ? get_assoc_element(get_element($categories, $index, true), 'name') : '') . '»</span>' :
-        'Все лоты';
+    $page_title = empty($search_string) ? 'Поле поиска не должно быть пустым!' : 'Результаты поиска по запросу «' . strip_tags($search_string) . '»';
 
-    $lots = get_open_lots($connection, RECORDS_PER_PAGE, ($page - 1) * RECORDS_PER_PAGE, $category_id);
+    $lots = empty($search_string) ? [] : get_search_result($connection, RECORDS_PER_PAGE, ($page - 1) * RECORDS_PER_PAGE, $search_string);
 
     $main_categories_content = include_template('categories.php',
         [
@@ -37,12 +33,12 @@
             'page_count' => $page_count,
             'pages' => range(1, $page_count),
             'active' => $page,
-            'pagination_context' => get_assoc_element(PAGINATION_CONTEXT, ALL_LOTS),
-            'pre_page_string' => ($category_id) ? 'id=' . $category_id . '&' : ''
+            'pagination_context' => get_assoc_element(PAGINATION_CONTEXT, SEARCH_RESULT),
+            'pre_page_string' => 'search=' . $search_string . '&'
 
         ]);
 
-    $page_content = include_template('all-lots.php',
+    $page_content = include_template('search-result.php',
         [
             'lots' => $lots,
             'categories_content' => $main_categories_content,
@@ -58,7 +54,7 @@
         [
             'main_content' => $page_content,
             'search_content' => $search_content,
-            'title' => $page_title,
+            'title' => 'Результаты поиска',
             'categories_content' => $footer_categories_content,
             'is_auth' => is_auth_user(),
             'user_name' => get_auth_user_property('name')

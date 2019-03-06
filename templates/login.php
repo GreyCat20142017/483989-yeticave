@@ -17,6 +17,6 @@
                    value="<?= get_pure_data($user, 'password'); ?>" required>
             <span class="form__error"> <?= get_field_validation_message($errors, 'password') ?></span>
         </div>
-        <button type="submit" class="button">Войти</button>
+        <button type="submit" name="logbtn" class="button">Войти</button>
     </form>
 </main>

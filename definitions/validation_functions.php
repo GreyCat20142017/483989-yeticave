@@ -2,6 +2,7 @@
     /**
      * Функция возращает название класса для формы на основе переданного массива с результатами валидации
      * @param $errors
+     * @param string $status
      * @return string
      */
     function get_form_validation_classname (&$errors, $status = '') {
@@ -28,6 +29,7 @@
      * Для изображения передается название класса.
      * @param $errors
      * @param $field_name
+     * @param string $success_classname
      * @return string
      */
     function get_field_validation_classname (&$errors, $field_name, $success_classname = '') {
@@ -51,6 +53,8 @@
      * Функция возвращает результат валидации в виде ассоциативного массива с ключом 'Имя поля' по массиву с описанием полей формы
      * Сначала добавляются результаты проверок на required, затем - результаты дополнительных специфических
      * @param $fields
+     * @param $form_data
+     * @param $files
      * @return array
      */
     function get_validation_result ($fields, $form_data, &$files) {
@@ -66,10 +70,11 @@
             if (isset($field['validation_rules']) && is_array($field['validation_rules'])) {
                 foreach ($field['validation_rules'] as $rule) {
                     $is_required = get_assoc_element($field, 'required');
+                    $is_special = get_assoc_element($field, 'special');
                     $result = ($rule === IMAGE_RULE) ?
                         get_image_validation_result($field_name, $files, $is_required) :
                         get_additional_validation_result($rule, $current_field);
-                    if (!empty($result) && $is_required) {
+                    if (!empty($result) && ($is_required || $is_special)) {
                         add_error_message($errors, $field_name, $result);
                     }
                 }
@@ -104,7 +109,6 @@
      */
     function get_lot_date_validation_result ($date) {
         $error_message = 'Необходима дата в формате ДД.ММ.ГГГГ больше текущей минимум на 1 день';
-        $status = '';
         $now = date_create("now");
         $new_date = date_create_from_format('d.m.Y', $date);
         if (!$new_date || $date !== date_format($new_date, 'd.m.Y')) {
@@ -144,6 +148,7 @@
      * Функция проверяет, являются ли загружаемые файлы допустимого типа. Дальнейшие действия по загрузке и проверке вынесены в другую функцию
      * @param $field_name
      * @param $files
+     * @param $is_required
      * @return string
      */
     function get_image_validation_result ($field_name, &$files, $is_required) {
@@ -182,7 +187,7 @@
      * @param $errors
      * @param $image_path
      * @param $image_key
-     * @param $lot
+     * @param $data
      */
     function try_upload_images ($image_fields, &$files, &$errors, $image_path, $image_key, &$data) {
         foreach ($image_fields as $field_name => $field) {
@@ -198,7 +203,6 @@
             } else {
                 $is_required = get_assoc_element($field, 'required');
                 if ($is_required) {
-                    $result = 'Загрузка файла невозможна: ' . $files[$field_name]['tmp_name'];
                     add_error_message($errors, $field_name, 'Загрузка файла невозможна: ' . $files[$field_name]['tmp_name']);
                 }
             }

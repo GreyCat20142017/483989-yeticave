@@ -17,8 +17,8 @@ VALUES ('Доски и лыжи'),
 
 # Добавление пары пользователей
 INSERT INTO users (name, email, user_password, avatar, contacts, registration_date)
-VALUES ('Василий Пупкин', 'vasyaPup@mail.ru', SHA1('secret'), 'ava_1.svg', 'Почта:vasyaPup@mail.ru', DATE_ADD(NOW(), INTERVAL -2 MONTH)),
-       ('Василиса Пупкина', 'vasilisaPupkina@mail.ru', SHA1('superSecret'), 'ava_2.svg', 'Почта, телеграф, телефон',
+VALUES ('Василий Пупкин', 'vasya@mail.ru', '$2y$10$0GYFabnO4kWUhOhvSaOQGOsT3zHGyQBsSuRcgbtlUIV19u84TEEgW', 'ava_1.svg', 'Почта: vasya@mail.ru', DATE_ADD(NOW(), INTERVAL -2 MONTH)),
+       ('Василиса Пупкина', 'vasilisaPupkina@mail.ru', '$2y$10$0GYFabnO4kWUhOhvSaOQGOsT3zHGyQBsSuRcgbtlUIV19u84TEEgW', 'ava_2.svg', 'Почта, телеграф, телефон',
         DATE_ADD(NOW(), INTERVAL -3 WEEK));
 
 # Добавление существующего списка объявлений
@@ -38,7 +38,7 @@ VALUES (1, 1, DATE_ADD(NOW(), INTERVAL -10 DAY), '2014 Rossignol District Snowbo
        (4, 2, '2019-02-04 20:20:20', 'Куртка для сноуборда DC Mutiny Charocal', 'lot-5.jpg', 7500.00, 500.00,
         'Просто удобная куртка',
         DATE_ADD(NOW(), INTERVAL 5 DAY)),
-       (6, 2, '2019-02-05 20:12:17', 'Маска Oakley Canopy', 'lot-6.jpg', 5400.00, 300.00, 'Просто маска',
+       (6, 2, '2019-02-05 17:17:17', 'Маска Oakley Canopy', 'lot-6.jpg', 5400.00, 300.00, 'Просто маска',
         DATE_ADD(NOW(), INTERVAL 1 MONTH));
 
 # Добавление пары ставок для любого объявления

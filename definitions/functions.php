@@ -46,18 +46,19 @@
      * @param array $data
      * @param string $key
      * @param bool $array_return
-     * @return any or string or array
+     * @return array|string
      */
     function get_assoc_element ($data, $key, $array_return = false) {
         $empty_value = $array_return ? [] : '';
-        return isset($data) && array_key_exists($key, $data) && isset($data[$key]) ? $data[$key] : $empty_value;
+        return isset($data) && is_array($data) && array_key_exists($key, $data) && isset($data[$key]) ? $data[$key] : $empty_value;
     }
 
     /**
      * Функция проверяет существование ключа ассоциативного массива и устанавливает значение по ключу,
-     * если существуют ключ и значение. Возвращает true в случае успеха.
+     * если существуют ключ. Возвращает true в случае успеха.
      * @param $data
      * @param $key
+     * @param $value
      * @return bool
      */
     function set_assoc_element ($data, $key, $value) {
@@ -74,10 +75,12 @@
      * В противном случае будет возвращена пустая строка
      * @param $array
      * @param $index
-     * @return element or string
+     * @param boolean $array_return
+     * @return any|string|array
      */
-    function get_element ($array, $index) {
-        return isset($array[$index]) ? $array[$index] : '';
+    function get_element ($array, $index, $array_return = false) {
+        $empty_value = $array_return ? [] : '';
+        return is_array($array) && isset($array[$index]) ? $array[$index] : $empty_value;
     }
 
     /**
@@ -102,7 +105,7 @@
 
     /**
      * Функция возвращает значение атрибута selected для выпадающего списка
-     * @param $category_id
+     * @param $element_id
      * @param $current_id
      * @return string
      */
@@ -157,23 +160,31 @@
      * @param $pagination_context
      * @return string
      */
-    function get_prev_href ($pagination_context, $id, $active) {
-        return $active > 1 ?
-            ' href="' . $pagination_context . '.php?id=' . $id . '&page=' . ($active - 1) . '"' :
-            '';
+    function get_prev_href ($pagination_context, $active, $pre_page_string) {
+        return $active > 1 ? ' href="' . $pagination_context . '.php?' . $pre_page_string . 'page=' . ($active - 1) . '"' : '';
     }
 
     /**
-     * Возвращает текст href для кнопки пагинации "Вперед"
-     * @param $active
-     * @param $id
+     * Функция возвращает текст href для кнопки пагинации "Вперед"
      * @param $pagination_context
+     * @param $id
+     * @param $active
+     * @param $last
      * @return string
      */
-    function get_next_href ($pagination_context, $id, $active, $last) {
-        return $active < $last ?
-            ' href="' . $pagination_context . '.php?id=' . $id . '&page=' . ($active + 1) . '"' :
-            '';
+    function get_next_href ($pagination_context, $active, $last, $pre_page_string) {
+        return $active < $last ? ' href="' . $pagination_context . '.php?' . $pre_page_string . 'page=' . ($active + 1) . '"' : '';
+    }
+
+    /**
+     * Функция возвращает текст href для кнопки пагинации № n
+     * @param $pagination_context
+     * @param $page
+     * @param $pre_page_string
+     * @return string
+     */
+    function get_page_href ($pagination_context, $page, $pre_page_string) {
+        return 'href="' . $pagination_context . '.php?' . $pre_page_string . 'page=' . ($page) . '"';
     }
 
     /**
@@ -191,8 +202,30 @@
      * @param $expired
      * @return string
      */
-    function get_timer_classname ($result, $expired) {
-        $classname = get_assoc_element(TIMER_CLASSNAME, $result);
-        $classname = ($expired) && empty($classname) ? get_assoc_element(TIMER_CLASSNAME, EXPIRED) : $classname;
-        return $classname;
+    function get_timer_classname ($result) {
+        return get_assoc_element(TIMER_CLASSNAME, $result);
+    }
+
+    /**
+     * Функция возвращает либо строку с результатом завершения торгов, либо оставшийся срок лота
+     * @param $result
+     * @param $time_left
+     * @return mixed
+     */
+    function get_timer_info ($result, $time_left) {
+        return in_array($result, [FINAL_BID, EXPIRED]) ? $result : $time_left;
+    }
+
+    /**
+     * Функция возвращает время в формате H:i:s, принимая в качестве параметра количество оставшихся секунд.
+     * @param $seconds_left
+     * @return string
+     */
+    function get_formatted_time_from_seconds ($seconds_left) {
+        $seconds_left = empty($seconds_left) ? 0 : $seconds_left;
+        $days = floor($seconds_left / (3600 * 24));
+        $time = floor($seconds_left % (3600 * 24));
+        $parts = explode(':', gmdate('H:i:s', $time));
+        $parts[0] = intval($parts[0]) + $days * 24;
+        return implode(':', $parts);
     }

@@ -36,19 +36,33 @@
 
     define('YETI_SESSION', 'current_user');
 
-    define('BIDDING_IS_OVER', 'Торги окончены');
+    define('BIDDING_IS_OVER', 'Другой победитель');
     define('FINAL_BID', 'Ставка выиграла');
-    define('EXPIRED', 'Срок лота истек');
+    define('EXPIRED', 'Торги окончены');
+    define('ACTIVE', 'Открытый лот');
 
     define('RATE_CLASSNAME', [
-        BIDDING_IS_OVER => 'rates__item--end',
-        FINAL_BID =>  'rates__item--win'
+        FINAL_BID =>  'rates__item--win',
+        BIDDING_IS_OVER => '',
+        EXPIRED =>  'rates__item--end',
+        ACTIVE =>  ''
     ]);
 
     define('TIMER_CLASSNAME', [
-        BIDDING_IS_OVER => 'timer--end',
         FINAL_BID =>  'timer--win',
-        EXPIRED =>  'timer--finishing',
+        BIDDING_IS_OVER => 'timer--finishing',
+        EXPIRED =>  'timer--end',
+        ACTIVE =>  ''
     ]);
+
+    define('SEARCH_RESULT', 'Результаты поиска');
+    define('ALL_LOTS', 'Все лоты');
+
+    define('PAGINATION_CONTEXT', [
+        SEARCH_RESULT => 'search-result',
+        ALL_LOTS =>  'all-lots'
+    ]);
+
+    define('TEST_EMAIL', 'nrz3siaatg81@mail.ru');
 
     date_default_timezone_set('Europe/Moscow');

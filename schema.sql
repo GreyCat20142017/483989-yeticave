@@ -32,8 +32,8 @@ CREATE TABLE lots
   description     TEXT           NOT NULL,
   image           CHAR(50)       NOT NULL DEFAULT '',
   price           DECIMAL(10, 2) NOT NULL DEFAULT 0,
-  completion_date DATETIME,
-  step            DECIMAL(10, 2)  NOT NULL DEFAULT 0
+  completion_date DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  step            DECIMAL(10, 2) NOT NULL DEFAULT 0
 );
 
 CREATE TABLE bids
@@ -48,4 +48,8 @@ CREATE TABLE bids
 
 CREATE INDEX winner_completion ON lots (winner_id, completion_date);
 
-CREATE INDEX category_creation ON lots (category_id, creation_date);
+CREATE INDEX category_lots ON lots (category_id, winner_id, completion_date);
+
+CREATE FULLTEXT INDEX lot_ft_search  ON lots(name, description);
+
+CREATE UNIQUE INDEX  user_lot ON bids (user_id, lot_id);

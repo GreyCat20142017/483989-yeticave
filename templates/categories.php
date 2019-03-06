@@ -1,4 +1,5 @@
-<?php if (was_error($categories)): ?>
+<?php /** @noinspection ALL */
+    if (was_error($categories)): ?>
     <h4 <?= get_classname(get_assoc_element($style, 'ul_classname')) ?>><?= get_error_description($categories); ?></h4>
 <?php else: ?>
     <ul <?= get_classname(get_assoc_element($style, 'ul_classname')) ?>>

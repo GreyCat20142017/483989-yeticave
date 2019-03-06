@@ -1,11 +1,11 @@
 <?php
 
     session_start();
-
-    require_once('functions.php');
+    require_once('init.php');
 
     $categories = get_all_categories($connection);
     $lots = get_open_lots($connection, RECORDS_PER_PAGE);
+    $search_string = '';
 
     $main_categories_content = include_template('categories.php',
         [
@@ -26,9 +26,14 @@
             'images' => get_assoc_element(PATHS, 'images')
         ]);
 
+    require_once('search.php');
+
+    $search_content = include_template('search.php', ['search_string' => $search_string]);
+
     $layout_content = include_template('layout.php',
         [
             'main_content' => $page_content,
+            'search_content' => $search_content,
             'title' => 'Главная',
             'categories_content' => $footer_categories_content,
             'is_auth' => is_auth_user(),
@@ -37,4 +42,4 @@
 
     print($layout_content);
 
-?>
+

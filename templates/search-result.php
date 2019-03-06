@@ -6,6 +6,9 @@
         <section class="lots">
             <?php if (was_error($lots)): ?>
                 <h4><?= get_error_description($lots); ?></h4>
+            <?php elseif (count($lots) === 0): ?>
+                <h2><?= strip_tags($title) ?></h2>
+                <h4><?= "Ничего не найдено по вашему запросу" ?></h4>
             <?php else: ?>
                 <h2><?= strip_tags($title) ?></h2>
                 <ul class="lots__list">
@@ -28,7 +31,7 @@
                                         <span class="lot__cost"><?= get_rubles(get_pure_data($lot, 'price')); ?></span>
                                     </div>
                                     <div class="lot__timer timer">
-                                        <?= get_formatted_time_from_seconds(get_pure_data($lot, 'time_left')); ?>
+                                        <?= gmdate('i:s', +get_pure_data($lot, 'time_left')); ?>
                                     </div>
                                 </div>
                             </div>

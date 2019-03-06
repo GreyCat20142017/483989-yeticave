@@ -26,7 +26,7 @@
                 $errors);
 
             if ($add_status) {
-                Header('Location:/lot.php?id=' . strip_tags($lot_id));
+                header('Location:/lot.php?id=' . strip_tags($lot_id));
             }
         }
     }

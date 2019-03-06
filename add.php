@@ -1,7 +1,7 @@
 <?php
-    session_start();
 
-    require_once('functions.php');
+    session_start();
+    require_once('init.php');
 
     if (!is_auth_user()) {
         http_response_code(403);
@@ -19,18 +19,25 @@
     $errors = [];
     $lot = [];
     $category = 0;
+    $search_string = '';
+
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+        if (isset($_POST['lot-date'])) {
+            $_POST['lot-date'] = empty(trim($_POST['lot-date'])) ?  '' : '' . date('d.m.Y', strtotime(strip_tags($_POST['lot-date'])));
+        }
 
         $lot = array_map(function ($item) {
             return trim(strip_tags($item));
         }, $_POST);
+
         /**
          * Описания полей для валидации. Если правила слишком специфичны, то в required для обязательных полей
          * нужно установить false, при этом заполнение контролировать специфическими правилами
          */
         $fields = [
-            'category' => ['description' => 'Категория', 'required' => false, 'validation_rules' => ['category_validation']],
+            'category' => ['description' => 'Категория', 'required' => false, 'validation_rules' => ['category_validation'], 'special' => true],
             'lot-name' => ['description' => 'Наименование', 'required' => true],
             'message' => ['description' => 'Описание', 'required' => true],
             'lot-rate' => ['description' => 'Начальная цена', 'required' => true, 'validation_rules' => ['decimal_validation']],
@@ -84,9 +91,12 @@
         'lot' => $lot
     ]);
 
+    $search_content = include_template('search.php', ['search_string' => $search_string]);
+
     $layout_content = include_template('layout.php',
         [
             'main_content' => $page_content,
+            'search_content' => $search_content,
             'title' => 'Добавление лота',
             'categories_content' => $categories_content,
             'is_auth' => is_auth_user(),

@@ -1,0 +1,7 @@
+{
+    "name": "483989/yeti",
+    "description": "YetiCave - PHP",
+    "require": {
+        "swiftmailer/swiftmailer": "^6.1"
+    }
+}
