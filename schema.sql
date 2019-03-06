@@ -53,3 +53,12 @@ CREATE INDEX category_lots ON lots (category_id, winner_id, completion_date);
 CREATE FULLTEXT INDEX lot_ft_search  ON lots(name, description);
 
 CREATE UNIQUE INDEX  user_lot ON bids (user_id, lot_id);
+
+
+ALTER TABLE lots
+  ADD CONSTRAINT FK_user_lots FOREIGN KEY (owner_id) REFERENCES users (id) ON DELETE CASCADE;
+
+ALTER TABLE bids
+  ADD CONSTRAINT FK_lot_bids FOREIGN KEY (lot_id) REFERENCES lots (id) ON DELETE CASCADE;
+ALTER TABLE bids
+  ADD CONSTRAINT FK_user_bids FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE;
