@@ -21,11 +21,10 @@
     $category = 0;
     $search_string = '';
 
-
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (isset($_POST['lot-date'])) {
-            $_POST['lot-date'] = empty(trim($_POST['lot-date'])) ?  '' : '' . date('d.m.Y', strtotime(strip_tags($_POST['lot-date'])));
+            $_POST['lot-date'] = empty(trim($_POST['lot-date'])) ? '' : '' . date('d.m.Y', strtotime(strip_tags($_POST['lot-date'])));
         }
 
         $lot = array_map(function ($item) {
@@ -62,16 +61,14 @@
             } else {
                 header('Location: lot.php?id=' . 'add_lot_error' . '&msg=' . get_assoc_element($add_result, 'error'));
             }
-        } else {
-
-            /**
-             * Если были ошибки, изображения нужно загрузить снова в любом случае
-             */
-            $_FILES = [];
-            foreach ($image_fields as $key_image_field => $image_field) {
-                $description = get_assoc_element($fields, $key_image_field);
-                set_assoc_element($description, 'errors', []);
-            }
+        }
+        /**
+         * Если были ошибки, изображения нужно загрузить снова в любом случае
+         */
+        $_FILES = [];
+        foreach ($image_fields as $key_image_field => $image_field) {
+            $description = get_assoc_element($fields, $key_image_field);
+            set_assoc_element($description, 'errors', []);
         }
     }
 
