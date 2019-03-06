@@ -150,7 +150,7 @@
      * @return string
      */
     function get_active_page_classname ($page, $active) {
-        return ($page == $active) ? 'pagination-item-active' : '';
+        return ($page === $active) ? 'pagination-item-active' : '';
     }
 
     /**
