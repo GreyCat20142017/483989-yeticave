@@ -1,10 +1,12 @@
 USE yeti;
 
 # Чистка таблиц
+SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE TABLE bids;
 TRUNCATE TABLE lots;
 TRUNCATE TABLE categories;
 TRUNCATE TABLE users;
+SET FOREIGN_KEY_CHECKS = 1;
 
 # Добавление существующго списка категорий
 INSERT INTO categories (name)
