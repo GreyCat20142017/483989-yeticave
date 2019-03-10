@@ -22,7 +22,8 @@
     $main_categories_content = include_template('categories.php',
         [
             'categories' => $categories,
-            'style' => get_assoc_element(CATEGORY_STYLES, 'bar')
+            'style' => get_assoc_element(CATEGORY_STYLES, 'bar'),
+            'current_id' => $category_id
         ]);
 
     $footer_categories_content = include_template('categories.php',

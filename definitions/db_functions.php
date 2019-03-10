@@ -77,10 +77,14 @@
      */
     function get_open_lots (&$connection, $limit, $offset = 0, $category_id = null) {
         $category_condition = $category_id ? ' l.category_id = ' . mysqli_real_escape_string($connection, $category_id) . '  AND ' : '';
-        $sql = 'SELECT l.id, c.name AS category, l.name, l.price, l.image, 
-                  GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), l.completion_date))  AS time_left
+        $sql = 'SELECT l.id, c.name AS category, l.name, l.price, l.image,
+                   GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), l.completion_date))  AS time_left,
+                   CASE WHEN b.bids_count IS NULL THEN 0 ELSE b.bids_count END as bids_count
                 FROM lots AS l
                 JOIN categories AS c ON l.category_id = c.id
+                LEFT OUTER JOIN (SELECT  lot_id, count(*) AS bids_count
+                FROM bids
+                GROUP BY lot_id) as b on l.id=b.lot_id
                 WHERE ' . $category_condition . ' (l.winner_id IS NULL) AND (l.completion_date > NOW()) 
                 ORDER BY l.creation_date DESC LIMIT ' . $limit . ' OFFSET ' . $offset . ';';
         return get_data_from_db($connection, $sql, 'Cписок лотов недоступен');

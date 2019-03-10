@@ -229,3 +229,56 @@
         $parts[0] = intval($parts[0]) + $days * 24;
         return implode(':', $parts);
     }
+
+    /**
+     * Функция возвращает название класса-модификатора для пункта меню категорий (активный, не активный)
+     * @param $current_id
+     * @param $category_id
+     * @param $styled_classname
+     * @return string
+     */
+    function get_current_item_classname ($current_id, $category_id, $styled_classname) {
+        $classname = ($current_id) && (intval($current_id) === intval($category_id)) ?
+            $styled_classname . ' nav__item--current ' : $styled_classname;
+        return get_classname($classname);
+    }
+
+    /**
+     * @param $seconds_left
+     * @return string
+     */
+    function get_time_left_classname ($seconds_left) {
+        $seconds_left = empty($seconds_left) ? 0 : $seconds_left;
+        return ($seconds_left <= 60 * 60) ? get_assoc_element(TIMER_CLASSNAME, BIDDING_IS_OVER) : '';
+    }
+
+    /**
+     * Функция возрвращает число ставок + словоформу со склонением либо строку "Стартовая цена" (если ставок не было)
+     * @param $bids_count
+     * @return string
+     */
+    function get_bids_info ($bids_count) {
+        $bids_count = intval($bids_count);
+        return $bids_count === 0 ? 'Стартовая цена' : $bids_count . ' ' . get_text_form($bids_count, ['ставка', 'ставки', ' ставок']);
+    }
+
+    /**
+     * Функция возвращает форму слова для числа по переданному массиву словоформ и числу
+     * @param $source_number
+     * @param $text_forms
+     * @return mixed
+     */
+    function get_text_form ($source_number, $text_forms) {
+        $source_number = abs($source_number) % 100;
+        $temporary_number = $source_number % 10;
+        if ($source_number > 10 && $source_number < 20) {
+            return $text_forms[2];
+        }
+        if ($temporary_number > 1 && $temporary_number < 5) {
+            return $text_forms[1];
+        }
+        if ($temporary_number === 1) {
+            return $text_forms[0];
+        }
+        return $text_forms[2];
+    }
