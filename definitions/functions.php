@@ -199,11 +199,11 @@
     /**
      * Функция возвращает название класса-модификатора для get_rates__item в зависимости от результата из get_user_bids
      * @param $result
-     * @param $expired
+     * @param $time_left
      * @return string
      */
-    function get_timer_classname ($result) {
-        return get_assoc_element(TIMER_CLASSNAME, $result);
+    function get_timer_classname ($result, $time_left = null) {
+        return $time_left ? get_time_left_classname($time_left) : get_assoc_element(TIMER_CLASSNAME, $result);
     }
 
     /**

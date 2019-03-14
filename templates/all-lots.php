@@ -24,10 +24,13 @@
                                 </h3>
                                 <div class="lot__state">
                                     <div class="lot__rate">
-                                        <span class="lot__amount">Стартовая цена</span>
-                                        <span class="lot__cost"><?= get_rubles(get_pure_data($lot, 'price')); ?></span>
+                                        <span
+                                            class="lot__amount"><?= get_bids_info(get_pure_data($lot, 'bids_count')); ?></span>
+                                        <span
+                                            class="lot__cost"><?= get_rubles(get_pure_data($lot, 'current_price')); ?></span>
                                     </div>
-                                    <div class="lot__timer timer">
+                                    <div
+                                        class="lot__timer timer <?= get_time_left_classname(get_pure_data($lot, 'time_left')); ?>">
                                         <?= get_formatted_time_from_seconds(get_pure_data($lot, 'time_left')); ?>
                                     </div>
                                 </div>

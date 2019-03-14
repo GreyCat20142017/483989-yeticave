@@ -16,13 +16,13 @@
             <div class="lot-item__right">
 
                 <div class="lot-item__state">
-                    <div class="lot-item__timer timer" style="min-width: 100px;">
+                    <div class="lot-item__timer timer <?= get_time_left_classname(get_pure_data($lot, 'time_left')); ?>" style="min-width: 100px;">
                         <?= get_formatted_time_from_seconds(get_pure_data($lot, 'time_left')) ?>
                     </div>
                     <div class="lot-item__cost-state">
                         <div class="lot-item__rate">
                             <span class="lot-item__amount">Текущая цена</span>
-                            <span class="lot-item__cost"><?= get_rubles(get_pure_data($lot, 'price')); ?></span>
+                            <span class="lot-item__cost"><?= get_rubles(get_pure_data($lot, 'current_price')); ?></span>
                         </div>
                         <div class="lot-item__min-cost">
                             Мин. ставка <span><?= get_rubles(get_pure_data($lot, 'min_bid'), true); ?> </span>

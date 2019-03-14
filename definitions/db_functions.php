@@ -79,10 +79,10 @@
         $category_condition = $category_id ? ' l.category_id = ' . mysqli_real_escape_string($connection, $category_id) . '  AND ' : '';
         $sql = 'SELECT l.id, c.name AS category, l.name, l.price, l.image,
                    GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), l.completion_date))  AS time_left,
-                   CASE WHEN b.bids_count IS NULL THEN 0 ELSE b.bids_count END as bids_count
+                    IFNULL(b.bids_count, 0) as bids_count, IFNULL(b.current_price, l.price) as current_price
                 FROM lots AS l
                 JOIN categories AS c ON l.category_id = c.id
-                LEFT OUTER JOIN (SELECT  lot_id, count(*) AS bids_count
+                LEFT OUTER JOIN (SELECT  lot_id, count(*) AS bids_count, MAX(declared_price) AS current_price
                 FROM bids
                 GROUP BY lot_id) as b on l.id=b.lot_id
                 WHERE ' . $category_condition . ' (l.winner_id IS NULL) AND (l.completion_date > NOW()) 
@@ -100,7 +100,7 @@
     function get_lot_info (&$connection, $lot_id) {
         $sql = 'SELECT l.id, l.owner_id, c.name AS category, l.name, l.creation_date, l.completion_date, l.price, l.description, l.image,
            CASE WHEN b.declared_price IS NULL THEN l.price ELSE b.declared_price END + l.step AS min_bid,
-           CASE WHEN b.declared_price IS NULL THEN 0 ELSE b.declared_price END AS last_bid,
+           CASE WHEN b.declared_price IS NULL THEN l.price ELSE b.declared_price END AS current_price,
            l.completion_date > NOW() AS not_expired,
            GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), l.completion_date)) AS time_left
             FROM lots AS l
@@ -387,9 +387,14 @@
      */
     function get_search_result ($connection, $limit, $offset = 0, $search_string) {
         $sql = 'SELECT l.id, c.name AS category, l.name, l.price, l.image, 
-                GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), l.completion_date))  AS time_left
+                IFNULL(b.bids_count, 0) as bids_count, IFNULL(b.declared_price, l.price) as current_price,
+                GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), l.completion_date)) AS time_left               
                 FROM lots AS l
                 JOIN categories AS c ON l.category_id = c.id
+                LEFT OUTER JOIN (SELECT MAX(lot_id) AS lot_id, count(*) AS bids_count, MAX(declared_price) AS declared_price
+                                    FROM bids
+                                    GROUP BY lot_id) AS b
+                                    ON l.id = b.lot_id
                 WHERE MATCH(l.name, l.description) AGAINST("' . $search_string . '" IN BOOLEAN MODE) AND (l.winner_id IS NULL) AND (l.completion_date > NOW()) 
                 ORDER BY l.creation_date DESC LIMIT ' . $limit . ' OFFSET ' . $offset . ';';
         $data = get_data_from_db($connection, $sql, 'Невозможно получить результат полнотекстового поиска');
