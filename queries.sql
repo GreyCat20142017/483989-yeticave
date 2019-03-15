@@ -9,13 +9,13 @@ TRUNCATE TABLE users;
 SET FOREIGN_KEY_CHECKS = 1;
 
 # Добавление существующго списка категорий
-INSERT INTO categories (name)
-VALUES ('Доски и лыжи'),
-       ('Крепления'),
-       ('Ботинки'),
-       ('Одежда'),
-       ('Инструменты'),
-       ('Разное');
+INSERT INTO categories (name, class_modifier)
+VALUES ('Доски и лыжи', 'boards'),
+       ('Крепления', 'attachment'),
+       ('Ботинки', 'boots'),
+       ('Одежда', 'clothing'),
+       ('Инструменты', 'tools'),
+       ('Разное', 'other');
 
 # Добавление пары пользователей
 INSERT INTO users (name, email, user_password, avatar, contacts, registration_date)

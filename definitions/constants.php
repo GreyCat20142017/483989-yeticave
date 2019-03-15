@@ -17,7 +17,7 @@
     define('CATEGORY_STYLES', [
         'tile' => [
             'ul_classname' => 'promo__list',
-            'li_classname' => 'promo__item promo__item--boards',
+            'li_classname' => 'promo__item',
             'a_classname' => 'promo__link'
         ],
         'bar' => [

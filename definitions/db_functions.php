@@ -61,7 +61,7 @@
      * @return array
      */
     function get_all_categories (&$connection) {
-        $sql = 'SELECT id, name FROM categories;';
+        $sql = 'SELECT id, name, class_modifier FROM categories;';
         return get_data_from_db($connection, $sql, 'Cписок категорий недоступен');
     }
 

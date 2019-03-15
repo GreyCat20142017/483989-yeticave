@@ -237,9 +237,10 @@
      * @param $styled_classname
      * @return string
      */
-    function get_current_item_classname ($current_id, $category_id, $styled_classname) {
+    function get_current_item_classname ($current_id, $category_id, $styled_classname, $style = 'bar', $modifier = '') {
         $classname = ($current_id) && (intval($current_id) === intval($category_id)) ?
             $styled_classname . ' nav__item--current ' : $styled_classname;
+        $classname = ($style !== 'bar') ? $classname . ' ' . $styled_classname . '--' . $modifier : $classname;
         return get_classname($classname);
     }
 

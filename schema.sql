@@ -8,7 +8,7 @@ CREATE TABLE categories
 (
   id   INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(20),
-  modificator VARCHAR(20)
+  class_modifier VARCHAR(20)
 );
 
 CREATE TABLE users
