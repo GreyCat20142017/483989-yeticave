@@ -38,11 +38,17 @@
 
         ]);
 
-    $page_content = include_template('search-result.php',
+    $lots_content = include_template('lots.php',
         [
             'lots' => $lots,
-            'categories_content' => $main_categories_content,
             'images' => get_assoc_element(PATHS, 'images'),
+            'title' => $page_title
+        ]);
+
+    $page_content = include_template('search-result.php',
+        [
+            'lots_content' => $lots_content,
+            'categories_content' => $main_categories_content,
             'title' => $page_title,
             'page' => $page,
             'pagination_content' => $pagination_content

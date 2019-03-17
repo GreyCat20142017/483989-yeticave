@@ -98,6 +98,7 @@
      * @return array
      */
     function get_lot_info (&$connection, $lot_id) {
+        $lot_id = mysqli_real_escape_string($connection, $lot_id);
         $sql = 'SELECT l.id, l.owner_id, c.name AS category, l.name, l.creation_date, l.completion_date, l.price, l.description, l.image,
            CASE WHEN b.declared_price IS NULL THEN l.price ELSE b.declared_price END + l.step AS min_bid,
            CASE WHEN b.declared_price IS NULL THEN l.price ELSE b.declared_price END AS current_price,
@@ -113,6 +114,7 @@
             WHERE l.id = ' . $lot_id . ';';
         return get_data_from_db($connection, $sql, 'Невозможно получить данные о лоте ' . $lot_id, true);
     }
+
     /**
      * Функция принимает соединение и массив с данными формы. Возвращает либо массив с id добавленной записи, либо массив с ошибкой
      * В случае попытки использовать несуществующие id пользователя или id категории возвращает ошибку
@@ -123,7 +125,7 @@
      */
     function add_lot ($connection, $lot, $current_user = 1) {
 
-        $current_category = get_assoc_element($lot, 'category');
+        $current_category =  mysqli_real_escape_string($connection, get_assoc_element($lot, 'category'));
 
         $user_status = get_id_existance($connection, 'users', $current_user);
         $category_status = get_id_existance($connection, 'categories', $current_category);
@@ -163,6 +165,7 @@
      * @return array|null
      */
     function get_id_existance ($connection, $table, $id) {
+        $id = mysqli_real_escape_string($connection, $id);
         $data = [[ERROR_KEY => 'Id =  ' . $id . ' в таблице ' . $table . ' не существует! ']];
         $sql = 'SELECT id FROM ' . $table . ' WHERE id = ' . $id . ' LIMIT 1;';
         $result = get_data_from_db($connection, $sql, 'Невозможно получить id из таблицы ' . $table, true);
@@ -259,6 +262,7 @@
      * @return array
      */
     function get_lot_history ($connection, $lot_id) {
+        $lot_id = mysqli_real_escape_string($connection, $lot_id);
         $sql = 'SELECT u.name, b.declared_price, b.placement_date,   
                    CASE
                      WHEN ABS(TIMESTAMPDIFF(MINUTE, NOW(), b.placement_date)) < 1 THEN "меньше минуты назад"
@@ -281,6 +285,7 @@
      * @return int
      */
     function get_next_bid ($connection, $lot_id) {
+        $lot_id = mysqli_real_escape_string($connection, $lot_id);
         $sql = 'SELECT CASE WHEN MAX(b.declared_price) IS NULL THEN l.price ELSE MAX(b.declared_price) END + l.step AS next_bid
                     FROM lots AS l
                            LEFT OUTER JOIN bids AS b ON l.id = b.lot_id
@@ -386,6 +391,7 @@
      * @return array|null
      */
     function get_search_result ($connection, $limit, $offset = 0, $search_string) {
+        $search_string = mysqli_real_escape_string($connection, $search_string);
         $sql = 'SELECT l.id, c.name AS category, l.name, l.price, l.image, 
                 IFNULL(b.bids_count, 0) as bids_count, IFNULL(b.declared_price, l.price) as current_price,
                 GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), l.completion_date)) AS time_left               
@@ -410,6 +416,7 @@
      * @return array
      */
     function get_search_result_pagination ($connection, $limit, $search_string) {
+        $search_string = mysqli_real_escape_string($connection, $search_string);
         $condition = ' WHERE MATCH(l.name, l.description) AGAINST("' . $search_string . '" IN BOOLEAN MODE) AND (l.winner_id IS NULL) AND (l.completion_date > NOW()) ';
         $sql = 'SELECT CEIL(COUNT(*) / ' . $limit . ') AS page_count, COUNT(*) AS total_records FROM lots  as l ' . $condition;
         $data = get_data_from_db($connection, $sql, 'Невозможно получить данные для пагинации результатов поиска', true);
@@ -461,4 +468,20 @@
             $result = mysqli_query($connection, $sql_update) ? $result_for_mail : [];
         }
         return $result;
+    }
+
+    /**
+     * Функция обновляет даты завершения для просроченных лотов без определения победителей
+     * @param $connection
+     * @return array
+     */
+    function renew_lots ($connection) {
+        $sql_update = 'UPDATE lots SET completion_date =
+                        CASE
+                                 WHEN ABS(TIMESTAMPDIFF(SECOND, creation_date, completion_date)) <
+                                      ABS(TIMESTAMPDIFF(SECOND, now(), completion_date))
+                                   THEN DATE_ADD(now(), INTERVAL FLOOR(ABS(TIMESTAMPDIFF(SECOND, NOW(), completion_date)) / (3600)) + 22 HOUR)
+                                 ELSE DATE_ADD(completion_date, INTERVAL ABS(TIMESTAMPDIFF(SECOND, creation_date, completion_date)) SECOND) END
+                        WHERE winner_id IS NULL AND completion_date < NOW();';
+        return mysqli_query($connection, $sql_update);
     }

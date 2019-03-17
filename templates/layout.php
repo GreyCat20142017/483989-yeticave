@@ -69,7 +69,7 @@
                 </svg>
             </a>
             <span class="visually-hidden">,</span>
-            <a class="social__link social__link--instagram" href="#">
+            <a class="social__link social__link--instagram" href="lots_renewal.php" title="Обновление сроков завершения лотов без победителей">
                 <span class="visually-hidden">Instagram</span>
                 <svg width="27" height="27" viewBox="0 0 27 27" xmlns="http://www.w3.org/2000/svg">
                     <circle stroke="#879296" fill="none" cx="13.5" cy="13.5" r="12.687"/>

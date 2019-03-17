@@ -19,11 +19,17 @@
             'style' => get_assoc_element(CATEGORY_STYLES, 'bar')
         ]);
 
-    $page_content = include_template('index.php',
+    $lots_content = include_template('lots.php',
         [
             'lots' => $lots,
-            'categories_content' => $main_categories_content,
-            'images' => get_assoc_element(PATHS, 'images')
+            'images' => get_assoc_element(PATHS, 'images'),
+            'title' => 'Открытые лоты'
+        ]);
+
+    $page_content = include_template('index.php',
+        [
+            'lots_content' => $lots_content,
+            'categories_content' => $main_categories_content
         ]);
 
     require_once('search.php');
