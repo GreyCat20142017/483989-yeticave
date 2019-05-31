@@ -32,8 +32,7 @@
                 </div>
             </div>
             <div class="form__input-file">
-                <input class="visually-hidden" type="file" id="photo2" name="lot-image"
-                       value="<?= get_pure_data($lot, 'lot-image'); ?>">
+                <input class="visually-hidden" type="file" id="photo2" name="lot-image">
                 <label for="photo2">
                     <span>+ Добавить</span>
                 </label>

@@ -19,18 +19,14 @@
 
     $lots = get_open_lots($connection, RECORDS_PER_PAGE, ($page - 1) * RECORDS_PER_PAGE, $category_id);
 
-    $main_categories_content = include_template('categories.php',
+    $categories_content = include_template('categories.php',
         [
             'categories' => $categories,
             'style' => get_assoc_element(CATEGORY_STYLES, 'bar'),
             'current_id' => $category_id
         ]);
 
-    $footer_categories_content = include_template('categories.php',
-        [
-            'categories' => $categories,
-            'style' => get_assoc_element(CATEGORY_STYLES, 'bar')
-        ]);
+
 
     $pagination_content = include_template('pagination.php',
         [
@@ -53,7 +49,7 @@
     $page_content = include_template('all-lots.php',
         [
             'lots_content' => $lots_content,
-            'categories_content' => $main_categories_content,
+            'categories_content' => $categories_content,
             'title' => $page_title,
             'page' => $page,
             'pagination_content' => $pagination_content
@@ -66,7 +62,7 @@
             'main_content' => $page_content,
             'search_content' => $search_content,
             'title' => $page_title,
-            'categories_content' => $footer_categories_content,
+            'categories_content' => $categories_content,
             'is_auth' => is_auth_user(),
             'user_name' => get_auth_user_property('name')
         ]);

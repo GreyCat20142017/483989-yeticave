@@ -83,7 +83,8 @@
             'title' => 'Регистрация',
             'categories_content' => $categories_content,
             'is_auth' => is_auth_user(),
-            'user_name' => get_auth_user_property('name')
+            'user_name' => get_auth_user_property('name'),
+            'js_scripts' => ['photo.js']
         ]);
 
     print($layout_content);

@@ -103,5 +103,11 @@
     </div>
 </footer>
 
+<?php if (!empty($js_scripts)): ?>
+    <?php foreach ($js_scripts as $js_script): ?>
+        <script src="../js/<?= $js_script; ?>"></script>
+    <?php endforeach; ?>
+<?php endif; ?>
+
 </body>
 </html>

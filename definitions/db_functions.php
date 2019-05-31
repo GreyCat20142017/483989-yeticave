@@ -401,7 +401,7 @@
                                     FROM bids
                                     GROUP BY lot_id) AS b
                                     ON l.id = b.lot_id
-                WHERE MATCH(l.name, l.description) AGAINST("' . $search_string . '" IN BOOLEAN MODE) AND (l.winner_id IS NULL) AND (l.completion_date > NOW()) 
+                WHERE MATCH(l.name, l.description) AGAINST("*' . $search_string . '*" IN BOOLEAN MODE) AND (l.winner_id IS NULL) AND (l.completion_date > NOW()) 
                 ORDER BY l.creation_date DESC LIMIT ' . $limit . ' OFFSET ' . $offset . ';';
         $data = get_data_from_db($connection, $sql, 'Невозможно получить результат полнотекстового поиска');
         return (!$data || was_error($data)) ? [] : $data;
@@ -417,7 +417,7 @@
      */
     function get_search_result_pagination ($connection, $limit, $search_string) {
         $search_string = mysqli_real_escape_string($connection, $search_string);
-        $condition = ' WHERE MATCH(l.name, l.description) AGAINST("' . $search_string . '" IN BOOLEAN MODE) AND (l.winner_id IS NULL) AND (l.completion_date > NOW()) ';
+        $condition = ' WHERE MATCH(l.name, l.description) AGAINST("*' . $search_string . '*" IN BOOLEAN MODE) AND (l.winner_id IS NULL) AND (l.completion_date > NOW()) ';
         $sql = 'SELECT CEIL(COUNT(*) / ' . $limit . ') AS page_count, COUNT(*) AS total_records FROM lots  as l ' . $condition;
         $data = get_data_from_db($connection, $sql, 'Невозможно получить данные для пагинации результатов поиска', true);
         return (!$data || was_error($data)) ? [] : $data;
